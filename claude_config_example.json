@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "truenas": {
+      "command": "python",
+      "args": [
+        "C:\\path\\to\\truenas-core-mcp\\truenas_mcp_server.py"
+      ],
+      "env": {
+        "TRUENAS_URL": "https://192.168.1.100",
+        "TRUENAS_API_KEY": "your-api-key-here",
+        "TRUENAS_VERIFY_SSL": "false"
+      }
+    }
+  }
+}
