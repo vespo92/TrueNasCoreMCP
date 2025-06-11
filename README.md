@@ -21,7 +21,7 @@ A Model Context Protocol (MCP) server that enables Claude Desktop (or any MCP cl
 
 1. Clone this repository:
 ```bash
-git clone https://github.com/yourusername/truenas-core-mcp.git
+git clone https://github.com/vespo92/TrueNasCoreMCP.git
 cd truenas-core-mcp
 ```
 
