@@ -1,23 +1,27 @@
-# TrueNAS Core MCP Server Repository
+# TrueNAS Core MCP Server Repository - Phase 2 Release
 
-This repository is ready to be pushed to GitHub! Here's what's included:
+This repository now includes Phase 2 features! Here's what's included:
 
 ## 📁 Repository Structure
 
 ```
-VanillaTrueNASMCP/
-├── truenas_mcp_server.py    # Main MCP server implementation
+TrueNasCoreMCP/
+├── truenas_mcp_server.py    # Main MCP server with Phase 2 features
 ├── requirements.txt         # Python dependencies
 ├── .env.example            # Environment configuration template
 ├── .gitignore              # Git ignore rules
 ├── LICENSE                 # MIT License
-├── README.md               # Comprehensive documentation
+├── README.md               # Comprehensive documentation (updated)
 ├── QUICKSTART.md           # 5-minute quick start guide
-├── CHANGELOG.md            # Version history
+├── CHANGELOG.md            # Version history (v2.0.0)
+├── PHASE2-ROADMAP.md       # Phase 2 feature roadmap
 ├── setup.bat               # Windows setup script
 ├── setup.sh                # Linux/Mac setup script
 ├── test_connection.py      # Connection test utility
-├── examples.py             # Usage examples
+├── test_phase2.py          # Phase 2 feature tests
+├── examples.py             # Basic usage examples
+├── phase2_examples.py      # Phase 2 usage examples
+├── truenas_mcp_phase2.py   # Phase 2 implementation reference
 └── claude_config_example.json  # Claude Desktop config example
 ```
 
@@ -28,7 +32,7 @@ VanillaTrueNASMCP/
    cd C:\Users\VinSpo\Desktop\VanillaTrueNASMCP
    git init
    git add .
-   git commit -m "Initial commit: TrueNAS Core MCP Server v1.0.0"
+   git commit -m "feat: Add Phase 2 features - permissions, K8s storage, automation"
    ```
 
 2. **Create GitHub repository:**
@@ -49,6 +53,7 @@ VanillaTrueNASMCP/
 
 ## 📝 Features Included
 
+### Phase 1 (Original)
 - ✅ Clean, minimal implementation
 - ✅ No hardcoded credentials
 - ✅ Comprehensive documentation
@@ -57,6 +62,16 @@ VanillaTrueNASMCP/
 - ✅ Example usage
 - ✅ MIT Licensed
 - ✅ Security best practices
+
+### Phase 2 (New!)
+- ✅ Dataset permission management (chmod/chown/ACL)
+- ✅ ZFS property modification
+- ✅ Kubernetes storage integration (NFS/iSCSI)
+- ✅ Automated snapshot policies
+- ✅ Recursive operations
+- ✅ Human-readable size inputs
+- ✅ K8s manifest generation
+- ✅ Advanced examples and tests
 
 ## 🔒 Security Notes
 

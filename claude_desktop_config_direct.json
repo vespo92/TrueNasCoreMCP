@@ -1,0 +1,33 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "~/.config",
+        "/Users/vinnieespo/Desktop",
+        "/Users/vinnieespo/Downloads",
+        "/Users/vinnieespo/Projects",
+        "/Users/vinnieespo/Library/Application Support/Claude",
+        "/Volumes/D2Drive/VCPU"
+      ]
+    },
+    "truenas": {
+      "command": "/Users/vinnieespo/Projects/TrueNasCoreMCP/venv/bin/python",
+      "args": ["/Users/vinnieespo/Projects/TrueNasCoreMCP/truenas_mcp_server.py"],
+      "env": {
+        "TRUENAS_URL": "https://10.0.0.14",
+        "TRUENAS_API_KEY": "1-wXkvQM36uSTfljzCs8NjULIkqVlMwfLk5EzrqaPHY0K0iXNcDEmZKGQkimYekSk",
+        "TRUENAS_VERIFY_SSL": "false"
+      }
+    },
+    "docker": {
+      "command": "uvx",
+      "args": ["mcp-server-docker"],
+      "env": {
+        "DOCKER_HOST": "ssh://ubuntu-docker"
+      }
+    }
+  }
+}
