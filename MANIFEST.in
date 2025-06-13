@@ -1,0 +1,38 @@
+# Include all requirements files
+include requirements.txt
+include requirements-dev.txt
+
+# Include documentation
+include README.md
+include LICENSE
+include CHANGELOG.md
+include CONTRIBUTING.md
+include FEATURES.md
+include QUICKSTART.md
+include QUICK_REFERENCE.md
+include SECURITY.md
+
+# Include configuration examples
+include .env.example
+include claude_config_example.json
+include claude_desktop_config_direct.json
+
+# Include setup scripts
+include quick_setup.sh
+include quick_setup.bat
+include Makefile
+
+# Include all documentation
+recursive-include docs *.md
+
+# Include examples
+recursive-include examples *.py
+
+# Exclude unnecessary files
+global-exclude __pycache__
+global-exclude *.py[co]
+global-exclude .DS_Store
+recursive-exclude TODELETE *
+recursive-exclude venv *
+exclude .gitignore
+exclude .pre-commit-config.yaml

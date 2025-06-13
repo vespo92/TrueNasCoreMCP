@@ -8,7 +8,7 @@ version = "2.0.0"
 description = "MCP server for TrueNAS Core - Control your NAS through natural language"
 readme = "README.md"
 requires-python = ">=3.10"
-license = {text = "MIT"}
+license = "MIT"
 authors = [
     {name = "Your Name", email = "your.email@example.com"},
 ]
@@ -20,7 +20,6 @@ classifiers = [
     "Topic :: System :: Systems Administration",
     "Topic :: System :: Archiving :: Backup",
     "Topic :: System :: Filesystems",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
@@ -66,6 +65,14 @@ Changelog = "https://github.com/vespo92/TrueNasCoreMCP/blob/main/CHANGELOG.md"
 
 [project.scripts]
 truenas-mcp = "truenas_mcp_server:main"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["truenas_mcp_server*"]
+exclude = ["tests*", "docs*", "examples*", "TODELETE*"]
 
 [tool.black]
 line-length = 100
