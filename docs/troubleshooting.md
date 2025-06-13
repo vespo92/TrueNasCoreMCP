@@ -86,7 +86,7 @@ If you get SSL certificate verification errors with self-signed certificates:
 
 If you're still having issues:
 
-1. Check the [GitHub Issues](https://github.com/yourusername/truenas-mcp-server/issues)
+1. Check the [GitHub Issues](https://github.com/vespo92/TrueNasCoreMCP/issues)
 2. Run the simple test to verify basic functionality:
    ```bash
    python tests/simple_test.py

@@ -21,14 +21,14 @@ setup(
     version="2.0.0",
     author="Your Name",
     author_email="your.email@example.com",
-    description="MCP server for TrueNAS Core/Scale - Control your NAS through natural language",
+    description="MCP server for TrueNAS Core - Control your NAS through natural language",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/truenas-mcp-server",
+    url="https://github.com/vespo92/TrueNasCoreMCP",
     project_urls={
-        "Bug Tracker": "https://github.com/yourusername/truenas-mcp-server/issues",
-        "Documentation": "https://github.com/yourusername/truenas-mcp-server/wiki",
-        "Source Code": "https://github.com/yourusername/truenas-mcp-server",
+        "Bug Tracker": "https://github.com/vespo92/TrueNasCoreMCP/issues",
+        "Documentation": "https://github.com/vespo92/TrueNasCoreMCP/wiki",
+        "Source Code": "https://github.com/vespo92/TrueNasCoreMCP",
     },
     
     # Package configuration

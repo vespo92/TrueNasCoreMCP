@@ -180,7 +180,7 @@ python tests/debug_mcp.py
 - **Documentation**: [FEATURES.md](FEATURES.md)
 - **Examples**: [examples/](examples/)
 - **Tests**: [tests/](tests/)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/truenas-mcp-server/issues)
+- **Issues**: [GitHub Issues](https://github.com/vespo92/TrueNasCoreMCP/issues)
 
 ## 🎯 Quick Examples
 

@@ -13,15 +13,15 @@ Get up and running with TrueNAS Core MCP Server in 5 minutes!
 
 ### Windows:
 ```batch
-git clone https://github.com/yourusername/truenas-core-mcp.git
-cd truenas-core-mcp
+git clone https://github.com/vespo92/TrueNasCoreMCP.git
+cd TrueNasCoreMCP
 setup.bat
 ```
 
 ### Linux/Mac:
 ```bash
-git clone https://github.com/yourusername/truenas-core-mcp.git
-cd truenas-core-mcp
+git clone https://github.com/vespo92/TrueNasCoreMCP.git
+cd TrueNasCoreMCP
 chmod +x setup.sh
 ./setup.sh
 ```

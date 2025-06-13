@@ -2,11 +2,11 @@
 
 <div align="center">
 
-[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/yourusername/truenas-mcp-server/releases)
-[![Python](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/downloads/)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/vespo92/TrueNasCoreMCP/releases)
+[![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![MCP](https://img.shields.io/badge/MCP-Compatible-purple.svg)](https://modelcontextprotocol.com)
-[![TrueNAS](https://img.shields.io/badge/TrueNAS-Core%20%7C%20Scale-red.svg)](https://www.truenas.com/)
+[![TrueNAS](https://img.shields.io/badge/TrueNAS-Core-red.svg)](https://www.truenas.com/)
 [![Tested](https://img.shields.io/badge/tested%20on-TrueNAS--13.0--U6.1-brightgreen.svg)](https://www.truenas.com/)
 
 **Control your TrueNAS system using natural language through Claude Desktop**
@@ -19,7 +19,7 @@
 
 ## 🌟 Overview
 
-TrueNAS MCP Server enables seamless interaction between Claude Desktop (or any MCP client) and your TrueNAS system. Manage storage, users, permissions, and even Kubernetes storage backends—all through natural language commands.
+TrueNAS MCP Server enables seamless interaction between Claude Desktop (or any MCP client) and your TrueNAS Core system. Manage storage, users, permissions, and even Kubernetes storage backends—all through natural language commands.
 
 ### 🎯 Key Features
 
@@ -34,14 +34,14 @@ TrueNAS MCP Server enables seamless interaction between Claude Desktop (or any M
 
 - **TrueNAS Core**: Version 13.0-U6.1
 - **API Version**: v2.0
-- **Python**: 3.8+
+- **Python**: 3.10+
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
-- Python 3.8 or higher
-- TrueNAS Core/Scale system with API access
+- Python 3.10 or higher
+- TrueNAS Core system with API access
 - Claude Desktop (or any MCP-compatible client)
 - TrueNAS API key
 
@@ -49,8 +49,8 @@ TrueNAS MCP Server enables seamless interaction between Claude Desktop (or any M
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/truenas-mcp-server.git
-cd truenas-mcp-server
+git clone https://github.com/vespo92/TrueNasCoreMCP.git
+cd TrueNasCoreMCP
 
 # Quick setup (recommended)
 ./quick_setup.sh  # On Windows: quick_setup.bat
@@ -212,14 +212,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- Built for [TrueNAS](https://www.truenas.com/) Core and Scale
+- Built for [TrueNAS Core](https://www.truenas.com/)
 - Powered by [Model Context Protocol](https://modelcontextprotocol.com) (MCP)
 - Uses [FastMCP](https://github.com/jlowin/fastmcp) for easy server creation
 - Tested on TrueNAS-13.0-U6.1
-
-## 🌟 Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=yourusername/truenas-mcp-server&type=Date)](https://star-history.com/#yourusername/truenas-mcp-server&Date)
 
 ---
 

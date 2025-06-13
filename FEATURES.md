@@ -278,12 +278,9 @@ parameters:
 
 ### Tested Versions
 - **TrueNAS Core**: 13.0-U6.1 ✅
-- **TrueNAS Scale**: Compatible (with minor API differences)
 - **API Version**: v2.0
 
 ### Python Support
-- Python 3.8 ✅
-- Python 3.9 ✅
 - Python 3.10 ✅
 - Python 3.11 ✅
 - Python 3.12 ✅
@@ -293,16 +290,14 @@ parameters:
 - Any MCP-compatible client ✅
 
 ### Known Limitations
-- Some advanced ACL features may vary between TrueNAS Core and Scale
-- iSCSI configuration may require additional setup on TrueNAS
+- iSCSI configuration may require additional setup on TrueNAS Core
 - Snapshot policies use TrueNAS periodic snapshot tasks
 
 ## Support
 
 For issues, questions, or feature requests:
-- 📝 [GitHub Issues](https://github.com/yourusername/truenas-mcp-server/issues)
-- 💬 [Discussions](https://github.com/yourusername/truenas-mcp-server/discussions)
-- 📧 Email: support@example.com
+- 📝 [GitHub Issues](https://github.com/vespo92/TrueNasCoreMCP/issues)
+- 💬 [Discussions](https://github.com/vespo92/TrueNasCoreMCP/discussions)
 
 ---
 

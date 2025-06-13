@@ -42,7 +42,7 @@ TrueNasCoreMCP/
 
 3. **Push to GitHub:**
    ```bash
-   git remote add origin https://github.com/yourusername/truenas-core-mcp.git
+   git remote add origin https://github.com/vespo92/TrueNasCoreMCP.git
    git branch -M main
    git push -u origin main
    ```

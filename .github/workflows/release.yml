@@ -30,12 +30,11 @@ jobs:
         python -m build
     
     - name: Create Release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      id: create_release
+      uses: softprops/action-gh-release@v2
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        tag_name: ${{ github.ref_name }}
+        name: Release ${{ github.ref_name }}
         body: |
           ## Changes in this Release
           
@@ -50,16 +49,9 @@ jobs:
           Or download the wheel file from the assets below.
         draft: false
         prerelease: false
-    
-    - name: Upload Release Assets
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./dist/*.whl
-        asset_name: truenas_mcp_server-${{ github.ref }}.whl
-        asset_content_type: application/zip
+        files: |
+          dist/*.whl
+          dist/*.tar.gz
     
     - name: Publish to PyPI
       env:

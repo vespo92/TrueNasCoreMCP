@@ -22,8 +22,8 @@ This project and everyone participating in it is governed by our Code of Conduct
 1. **Fork the repository** on GitHub
 2. **Clone your fork** locally:
    ```bash
-   git clone https://github.com/your-username/truenas-mcp-server.git
-   cd truenas-mcp-server
+   git clone https://github.com/your-username/TrueNasCoreMCP.git
+   cd TrueNasCoreMCP
    ```
 3. **Set up development environment**:
    ```bash
@@ -267,7 +267,7 @@ When adding features, update:
 
 1. **Update your fork**:
    ```bash
-   git remote add upstream https://github.com/original/truenas-mcp-server.git
+   git remote add upstream https://github.com/vespo92/TrueNasCoreMCP.git
    git fetch upstream
    git rebase upstream/main
    ```
@@ -308,7 +308,7 @@ Contributors will be recognized in:
 ## Questions?
 
 Feel free to:
-- Open a [Discussion](https://github.com/yourusername/truenas-mcp-server/discussions)
+- Open a [Discussion](https://github.com/vespo92/TrueNasCoreMCP/discussions)
 - Join our community chat
 - Email the maintainers
 

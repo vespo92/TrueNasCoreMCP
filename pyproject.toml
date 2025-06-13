@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "truenas-mcp-server"
 version = "2.0.0"
-description = "MCP server for TrueNAS Core/Scale - Control your NAS through natural language"
+description = "MCP server for TrueNAS Core - Control your NAS through natural language"
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}
@@ -58,11 +58,11 @@ docs = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/truenas-mcp-server"
-Documentation = "https://github.com/yourusername/truenas-mcp-server/wiki"
-Repository = "https://github.com/yourusername/truenas-mcp-server.git"
-Issues = "https://github.com/yourusername/truenas-mcp-server/issues"
-Changelog = "https://github.com/yourusername/truenas-mcp-server/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/vespo92/TrueNasCoreMCP"
+Documentation = "https://github.com/vespo92/TrueNasCoreMCP/wiki"
+Repository = "https://github.com/vespo92/TrueNasCoreMCP.git"
+Issues = "https://github.com/vespo92/TrueNasCoreMCP/issues"
+Changelog = "https://github.com/vespo92/TrueNasCoreMCP/blob/main/CHANGELOG.md"
 
 [project.scripts]
 truenas-mcp = "truenas_mcp_server:main"
