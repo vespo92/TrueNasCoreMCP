@@ -11,6 +11,10 @@
 
 **Control your TrueNAS system using natural language through Claude Desktop**
 
+<a href="https://glama.ai/mcp/servers/@vespo92/TrueNasCoreMCP">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@vespo92/TrueNasCoreMCP/badge" alt="TrueNAS Core Server MCP server" />
+</a>
+
 [Features](#features) • [Quick Start](#quick-start) • [Installation](#installation) • [Documentation](#documentation) • [Examples](#examples)
 
 </div>
