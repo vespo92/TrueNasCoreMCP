@@ -2,7 +2,47 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2.0.0] - 2025-06-11
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [3.0.0] - 2024-01-14
+
+### Changed
+- **BREAKING**: Complete refactor from monolithic to modular architecture
+- **BREAKING**: Changed package structure - now use `from truenas_mcp_server import TrueNASMCPServer`
+- Migrated from single 900-line file to organized package structure
+- Added comprehensive Pydantic models for type safety
+- Implemented proper error hierarchy with custom exceptions
+- Added connection pooling and retry logic for HTTP client
+- Introduced environment-based configuration with validation
+- Added structured logging throughout the application
+- Improved tool organization with base classes and inheritance
+
+### Added
+- Full type hints and Pydantic models for all data structures
+- Comprehensive error handling with detailed error messages
+- HTTP client with automatic retry and exponential backoff
+- Rate limiting support (configurable)
+- Environment-based configuration via `.env` files
+- Structured logging with configurable levels
+- Plugin architecture for easy tool extension
+- Comprehensive documentation and examples
+- Production-ready packaging for PyPI distribution
+
+### Fixed
+- Memory leaks from global client singleton
+- Inconsistent error responses
+- Missing validation on user inputs
+- Connection timeout issues
+- SSL verification problems
+
+### Security
+- API keys now properly masked in logs
+- Added validation for all user inputs
+- Destructive operations disabled by default
+- SSL verification enabled by default
+
+## [2.0.0] - 2025-01-11
 
 ### Added - Phase 2 Features
 - **Permission Management**

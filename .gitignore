@@ -1,18 +1,9 @@
-# Cleanup folder
-TODELETE/
-
-# Environment variables
-.env
-.env.local
-.env.*.local
-.env.production
-.env.development
-
-# Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
+
+# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -26,144 +17,47 @@ parts/
 sdist/
 var/
 wheels/
-share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 MANIFEST
 
-# Virtual Environments
-venv/
-env/
-ENV/
-.venv
-env.bak/
-venv.bak/
-Scripts/
-bin/
-include/
-lib64
-pyvenv.cfg
-pip-selfcheck.json
-
-# IDE
-.vscode/
-*.code-workspace
-.history/
-.idea/
-*.iml
-*.iws
-.idea_modules/
-*.sublime-project
-*.sublime-workspace
-*.swp
-*.swo
-*~
-.*.sw[op]
-
-# OS
-.DS_Store
-.AppleDouble
-.LSOverride
-Icon
-._*
-.DocumentRevisions-V100
-.fseventsd
-.Spotlight-V100
-.TemporaryItems
-.Trashes
-.VolumeIcon.icns
-.com.apple.timemachine.donotpresent
-Thumbs.db
-Thumbs.db:encryptable
-ehthumbs.db
-ehthumbs_vista.db
-*.stackdump
-[Dd]esktop.ini
-$RECYCLE.BIN/
-*.cab
-*.msi
-*.msix
-*.msm
-*.msp
-*.lnk
-.directory
-.Trash-*
-.nfs*
-
-# Testing
-.pytest_cache/
-.coverage
-.coverage.*
+# Unit test / coverage reports
 htmlcov/
 .tox/
 .nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
 coverage.xml
 *.cover
-*.py,cover
 .hypothesis/
-pytest_cache/
-cover/
-.mutmut-cache
-.mypy_cache/
-.dmypy.json
-dmypy.json
-.pyre/
-.pytype/
-cython_debug/
+.pytest_cache/
 
-# Logs
-*.log
-logs/
-*.log.*
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-.pnpm-debug.log*
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
 
-# Documentation
-docs/_build/
-docs/_static/
-docs/_templates/
-site/
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
 
-# Temporary files
-*.tmp
-*.temp
+# OS
+.DS_Store
+Thumbs.db
+
+# Backup files
 *.bak
 *.backup
-*.old
-~*
 *~
+truenas_mcp_server_old.py.bak
 
-# Database
-*.db
-*.sqlite
-*.sqlite3
-
-# Secrets
-*.pem
-*.key
-*.cert
-*.crt
-*.p12
-*.pfx
-
-# Jupyter Notebook
-.ipynb_checkpoints
-*.ipynb
-
-# Package files
-*.tar.gz
-*.zip
-
-# Claude Desktop specific
-claude_desktop_config.json
-.mcp/
-
-# Project specific
-test_output/
-scratch/
-tmp/
-temp/
+# Config examples
+claude_config_example.json
+claude_desktop_config_direct.json

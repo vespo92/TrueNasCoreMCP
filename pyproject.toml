@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "truenas-mcp-server"
-version = "2.0.0"
-description = "MCP server for TrueNAS Core - Control your NAS through natural language"
+version = "3.0.0"
+description = "Production-ready MCP server for TrueNAS Core - Control your NAS through natural language"
 readme = "README.md"
 requires-python = ">=3.10"
-license = "MIT"
+license = {text = "MIT"}
 authors = [
-    {name = "Your Name", email = "your.email@example.com"},
+    {name = "Vinnie Espo", email = "vespo92@gmail.com"},
 ]
 keywords = ["truenas", "mcp", "claude", "api", "nas", "storage", "zfs", "smb", "nfs", "iscsi", "kubernetes"]
 classifiers = [
@@ -32,6 +32,8 @@ dependencies = [
     "mcp>=1.1.0",
     "httpx>=0.27.0",
     "python-dotenv>=1.0.0",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
 ]
 
 [project.optional-dependencies]
