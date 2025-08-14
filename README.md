@@ -275,6 +275,14 @@ flake8 truenas_mcp_server
 mypy truenas_mcp_server
 ```
 
+## 📖 Documentation
+
+- [Installation Guide](docs/guides/INSTALL.md) - Detailed installation instructions
+- [Quick Start](docs/guides/QUICKSTART.md) - Get up and running quickly
+- [Quick Reference](docs/guides/QUICK_REFERENCE.md) - Command reference
+- [Features Overview](docs/guides/FEATURES.md) - Detailed feature documentation
+- [API Documentation](docs/api/) - Coming soon
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
