@@ -26,10 +26,26 @@ A production-ready Model Context Protocol (MCP) server for TrueNAS Core systems.
 
 ## 📦 Installation
 
-### From PyPI (Recommended)
+### Quick Start with uvx (Recommended)
+
+The easiest way to run TrueNAS MCP Server is with [uvx](https://github.com/astral-sh/uv):
 
 ```bash
+# Run directly without installation
+uvx truenas-mcp-server
+
+# Or install globally with uv
+uv tool install truenas-mcp-server
+```
+
+### Traditional Installation
+
+```bash
+# With pip
 pip install truenas-mcp-server
+
+# Or with pipx for isolated environment
+pipx install truenas-mcp-server
 ```
 
 ### From Source
@@ -69,19 +85,14 @@ TRUENAS_ENABLE_DEBUG_TOOLS=false          # Enable debug tools
 
 ### Claude Desktop Configuration
 
-1. **Install the package via pip** (in Claude Desktop's Python environment):
-```bash
-pip install truenas-mcp-server
-```
-
-2. **Add to your Claude Desktop config** (`claude_desktop_config.json`):
+**Add to your Claude Desktop config** (`claude_desktop_config.json`):
 
 ```json
 {
   "mcpServers": {
     "truenas": {
-      "command": "python",
-      "args": ["-m", "truenas_mcp_server"],
+      "command": "uvx",
+      "args": ["truenas-mcp-server"],
       "env": {
         "TRUENAS_URL": "https://your-truenas-server.local",
         "TRUENAS_API_KEY": "your-api-key-here",
@@ -92,7 +103,13 @@ pip install truenas-mcp-server
 }
 ```
 
-**Note**: Make sure to install the package in the same Python environment that Claude Desktop uses.
+**Note**: This uses `uvx` to automatically manage the Python environment. Make sure you have [uv](https://github.com/astral-sh/uv) installed:
+```bash
+# Install uv if you haven't already
+curl -LsSf https://astral.sh/uv/install.sh | sh
+# or
+brew install uv
+```
 
 ## 📚 Usage Examples
 

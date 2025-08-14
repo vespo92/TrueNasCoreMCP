@@ -2,24 +2,46 @@
 
 ## Prerequisites
 
-- Python 3.10 or higher
 - TrueNAS Core server with API access
 - TrueNAS API key
+- For traditional install: Python 3.10 or higher
 
 ## Installation Methods
 
-### Method 1: Install from PyPI (Recommended)
+### Method 1: Using uvx (Recommended - No Python Required!)
+
+Install [uv](https://github.com/astral-sh/uv) first:
+```bash
+# macOS/Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# or with Homebrew
+brew install uv
+
+# Windows
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+Then run TrueNAS MCP Server:
+```bash
+# Run directly without installation
+uvx truenas-mcp-server
+
+# Or install as a tool
+uv tool install truenas-mcp-server
+```
+
+### Method 2: Install from PyPI
 
 ```bash
+# Standard pip install
 pip install truenas-mcp-server
+
+# Or use pipx for isolation
+pipx install truenas-mcp-server
 ```
 
-Or with specific version:
-```bash
-pip install truenas-mcp-server==3.0.0
-```
-
-### Method 2: Install from GitHub
+### Method 3: Install from GitHub
 
 Install the latest development version directly from GitHub:
 
@@ -32,7 +54,7 @@ Or a specific release:
 pip install git+https://github.com/vespo92/TrueNasCoreMCP.git@v3.0.0
 ```
 
-### Method 3: Development Installation
+### Method 4: Development Installation
 
 For development or contributing:
 
@@ -82,16 +104,14 @@ export TRUENAS_API_KEY="your-api-key-here"
 
 ## Claude Desktop Setup
 
-### Step 1: Install the Package
-
-First, ensure the package is installed in Claude Desktop's Python environment:
+### Step 1: Install uv (if not already installed)
 
 ```bash
-# Find Claude Desktop's Python
-which python  # Should show Claude's Python path
+# macOS/Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Install the package
-pip install truenas-mcp-server
+# Windows
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
 ### Step 2: Configure Claude Desktop
@@ -108,8 +128,25 @@ Add the TrueNAS MCP server configuration:
 {
   "mcpServers": {
     "truenas": {
-      "command": "python",
-      "args": ["-m", "truenas_mcp_server"],
+      "command": "uvx",
+      "args": ["truenas-mcp-server"],
+      "env": {
+        "TRUENAS_URL": "https://your-truenas-server.local",
+        "TRUENAS_API_KEY": "your-api-key-here",
+        "TRUENAS_VERIFY_SSL": "false"
+      }
+    }
+  }
+}
+```
+
+**Alternative**: If you prefer using the installed tool:
+```json
+{
+  "mcpServers": {
+    "truenas": {
+      "command": "uv",
+      "args": ["tool", "run", "truenas-mcp-server"],
       "env": {
         "TRUENAS_URL": "https://your-truenas-server.local",
         "TRUENAS_API_KEY": "your-api-key-here",
