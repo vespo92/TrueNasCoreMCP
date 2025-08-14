@@ -12,26 +12,17 @@ T = TypeVar("T")
 class BaseModel(PydanticBaseModel):
     """Base model with common configuration"""
     
-    class Config:
-        """Pydantic configuration"""
-        # Allow population by field name or alias
-        allow_population_by_field_name = True
-        
-        # Use enum values
-        use_enum_values = True
-        
-        # Validate on assignment
-        validate_assignment = True
-        
-        # JSON encoders for custom types
-        json_encoders = {
+    model_config = {
+        "populate_by_name": True,  # Updated from allow_population_by_field_name
+        "use_enum_values": True,
+        "validate_assignment": True,
+        "json_encoders": {
             datetime: lambda v: v.isoformat()
-        }
-        
-        # Schema extra
-        schema_extra = {
+        },
+        "json_schema_extra": {  # Updated from schema_extra
             "example": {}
         }
+    }
 
 
 class ResponseModel(BaseModel, Generic[T]):

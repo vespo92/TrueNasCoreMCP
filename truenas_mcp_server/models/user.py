@@ -3,7 +3,7 @@ User models for TrueNAS MCP Server
 """
 
 from typing import Optional, List
-from pydantic import Field, validator
+from pydantic import Field, field_validator
 from .base import BaseModel
 
 
@@ -24,7 +24,7 @@ class User(BaseModel):
     microsoft_account: bool = Field(False, description="Is a Microsoft account")
     sshpubkey: Optional[str] = Field(None, description="SSH public key")
     
-    @validator("shell")
+    @field_validator("shell")
     def validate_shell(cls, v):
         """Validate shell path"""
         valid_shells = ["/bin/sh", "/bin/bash", "/bin/csh", "/bin/tcsh", "/bin/zsh", "/usr/bin/bash", "/usr/sbin/nologin"]
@@ -32,7 +32,7 @@ class User(BaseModel):
             raise ValueError(f"Invalid shell: {v}")
         return v
     
-    @validator("home")
+    @field_validator("home")
     def validate_home(cls, v):
         """Validate home directory path"""
         if not v.startswith("/"):
@@ -53,7 +53,7 @@ class UserCreate(BaseModel):
     sudo: bool = Field(False, description="Grant sudo privileges")
     sshpubkey: Optional[str] = Field(None, description="SSH public key")
     
-    @validator("username")
+    @field_validator("username")
     def validate_username(cls, v):
         """Validate username format"""
         import re
@@ -61,7 +61,7 @@ class UserCreate(BaseModel):
             raise ValueError("Username must start with lowercase letter and contain only lowercase letters, numbers, underscore, and hyphen")
         return v
     
-    @validator("email")
+    @field_validator("email")
     def validate_email(cls, v):
         """Validate email format"""
         if v:

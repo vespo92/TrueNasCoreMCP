@@ -4,7 +4,7 @@ Storage models for TrueNAS MCP Server
 
 from typing import Optional, Dict, Any, List
 from enum import Enum
-from pydantic import Field, validator
+from pydantic import Field, field_validator
 from .base import BaseModel
 
 
@@ -106,7 +106,7 @@ class Dataset(BaseModel):
     referenced: int = Field(0, description="Referenced space in bytes")
     children: List[str] = Field(default_factory=list, description="Child datasets")
     
-    @validator("recordsize")
+    @field_validator("recordsize")
     def validate_recordsize(cls, v):
         """Validate record size"""
         valid_sizes = ["512", "1K", "2K", "4K", "8K", "16K", "32K", "64K", "128K", "256K", "512K", "1M"]
@@ -131,7 +131,7 @@ class DatasetCreate(BaseModel):
     exec: bool = Field(True, description="Allow execution")
     casesensitivity: str = Field("sensitive", description="Case sensitivity")
     
-    @validator("name")
+    @field_validator("name")
     def validate_name(cls, v):
         """Validate dataset name"""
         import re
@@ -156,7 +156,7 @@ class Snapshot(BaseModel):
     used: Optional[int] = Field(None, description="Used space in bytes")
     holds: List[str] = Field(default_factory=list, description="Snapshot holds")
     
-    @validator("name")
+    @field_validator("name")
     def validate_name(cls, v):
         """Validate snapshot name format"""
         if "@" not in v:

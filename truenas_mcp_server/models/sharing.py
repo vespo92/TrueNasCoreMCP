@@ -3,7 +3,7 @@ Sharing models for TrueNAS MCP Server
 """
 
 from typing import Optional, List, Dict, Any
-from pydantic import Field, validator
+from pydantic import Field, field_validator
 from .base import BaseModel
 
 
@@ -26,14 +26,14 @@ class SMBShare(BaseModel):
     shadowcopy: bool = Field(False, description="Enable shadow copies")
     audit: Dict[str, Any] = Field(default_factory=dict, description="Audit settings")
     
-    @validator("path")
+    @field_validator("path")
     def validate_path(cls, v):
         """Validate share path"""
         if not v.startswith("/mnt/"):
             raise ValueError("Share path must start with /mnt/")
         return v
     
-    @validator("name")
+    @field_validator("name")
     def validate_name(cls, v):
         """Validate share name"""
         import re
@@ -60,14 +60,14 @@ class NFSExport(BaseModel):
     quiet: bool = Field(False, description="Suppress some warnings")
     security: List[str] = Field(default_factory=lambda: ["sys"], description="Security flavors")
     
-    @validator("path")
+    @field_validator("path")
     def validate_path(cls, v):
         """Validate export path"""
         if not v.startswith("/mnt/"):
             raise ValueError("Export path must start with /mnt/")
         return v
     
-    @validator("networks")
+    @field_validator("networks")
     def validate_networks(cls, v):
         """Validate network format"""
         import re
@@ -87,7 +87,7 @@ class ISCSITarget(BaseModel):
     mode: str = Field("ISCSI", description="Target mode")
     groups: List[Dict[str, Any]] = Field(default_factory=list, description="Initiator groups")
     
-    @validator("name")
+    @field_validator("name")
     def validate_iqn(cls, v):
         """Validate IQN format"""
         import re
@@ -114,7 +114,7 @@ class ISCSIExtent(BaseModel):
     ro: bool = Field(False, description="Read-only")
     rpm: str = Field("SSD", description="RPM type")
     
-    @validator("blocksize")
+    @field_validator("blocksize")
     def validate_blocksize(cls, v):
         """Validate block size"""
         valid_sizes = [512, 1024, 2048, 4096]
@@ -122,7 +122,7 @@ class ISCSIExtent(BaseModel):
             raise ValueError(f"Invalid block size: {v}")
         return v
     
-    @validator("rpm")
+    @field_validator("rpm")
     def validate_rpm(cls, v):
         """Validate RPM type"""
         valid_rpms = ["UNKNOWN", "SSD", "5400", "7200", "10000", "15000"]

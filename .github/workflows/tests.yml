@@ -41,12 +41,12 @@ jobs:
         TRUENAS_API_KEY: mock-api-key
         TRUENAS_VERIFY_SSL: false
       run: |
-        # Run pytest if tests exist
-        if [ -f tests/test_*.py ]; then
-          pytest tests/ || true
-        fi
         # Try importing the package
         python -c "from truenas_mcp_server import TrueNASMCPServer; print('Import successful')"
+        # Run pytest if tests exist
+        if ls tests/test_*.py 1> /dev/null 2>&1; then
+          pytest tests/ || true
+        fi
     
     - name: Check code formatting with Black
       run: |
