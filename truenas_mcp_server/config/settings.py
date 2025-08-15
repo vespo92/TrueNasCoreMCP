@@ -34,93 +34,84 @@ class Settings(BaseSettings):
     Settings are loaded from environment variables with TRUENAS_ prefix
     """
     
-    # TrueNAS Connection Settings
+    # TrueNAS Connection Settings  
     truenas_url: HttpUrl = Field(
         default="https://truenas.local",
         description="TrueNAS server URL",
-        env="TRUENAS_URL"
+        validation_alias="TRUENAS_URL"
     )
     
     truenas_api_key: SecretStr = Field(
         ...,
         description="TrueNAS API key for authentication",
-        env="TRUENAS_API_KEY"
+        validation_alias="TRUENAS_API_KEY"
     )
     
     truenas_verify_ssl: bool = Field(
         default=True,
         description="Verify SSL certificates",
-        env="TRUENAS_VERIFY_SSL"
+        validation_alias="TRUENAS_VERIFY_SSL"
     )
     
     # Application Settings
     environment: Environment = Field(
         default=Environment.PRODUCTION,
         description="Application environment",
-        env="TRUENAS_ENV"
+        validation_alias="TRUENAS_ENV"
     )
     
     log_level: LogLevel = Field(
         default=LogLevel.INFO,
         description="Logging level",
-        env="TRUENAS_LOG_LEVEL"
+        validation_alias="TRUENAS_LOG_LEVEL"
     )
     
     # HTTP Client Settings
     http_timeout: float = Field(
         default=30.0,
-        description="HTTP request timeout in seconds",
-        env="TRUENAS_HTTP_TIMEOUT"
+        description="HTTP request timeout in seconds"
     )
     
     http_max_retries: int = Field(
         default=3,
-        description="Maximum number of HTTP retries",
-        env="TRUENAS_HTTP_MAX_RETRIES"
+        description="Maximum number of HTTP retries"
     )
     
     http_pool_connections: int = Field(
         default=10,
-        description="Number of connection pool connections",
-        env="TRUENAS_HTTP_POOL_CONNECTIONS"
+        description="Number of connection pool connections"
     )
     
     http_pool_maxsize: int = Field(
         default=20,
-        description="Maximum size of the connection pool",
-        env="TRUENAS_HTTP_POOL_MAXSIZE"
+        description="Maximum size of the connection pool"
     )
     
     # Rate Limiting
     rate_limit_enabled: bool = Field(
         default=False,
         description="Enable rate limiting",
-        env="TRUENAS_RATE_LIMIT_ENABLED"
     )
     
     rate_limit_requests: int = Field(
         default=100,
         description="Number of requests per window",
-        env="TRUENAS_RATE_LIMIT_REQUESTS"
     )
     
     rate_limit_window: int = Field(
         default=60,
         description="Rate limit window in seconds",
-        env="TRUENAS_RATE_LIMIT_WINDOW"
     )
     
     # Feature Flags
     enable_debug_tools: bool = Field(
         default=False,
         description="Enable debug tools in production",
-        env="TRUENAS_ENABLE_DEBUG_TOOLS"
     )
     
     enable_destructive_operations: bool = Field(
         default=False,
         description="Enable potentially destructive operations",
-        env="TRUENAS_ENABLE_DESTRUCTIVE_OPS"
     )
     
     @field_validator("truenas_url", mode="before")
@@ -165,12 +156,12 @@ class Settings(BaseSettings):
         return self.environment == Environment.DEVELOPMENT
     
     model_config = {
-        "env_prefix": "TRUENAS_",
         "env_file": ".env",
         "env_file_encoding": "utf-8",
         "case_sensitive": False,
         "extra": "ignore",
-        "use_enum_values": True
+        "use_enum_values": True,
+        "populate_by_name": True
     }
 
 

@@ -12,7 +12,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 # Package metadata
 setup(
     name="truenas-mcp-server",
-    version="3.0.0",
+    version="3.0.2",
     author="Vinnie Espo",
     author_email="vespo92@gmail.com",
     description="MCP server for TrueNAS Core - Control your NAS through natural language",
