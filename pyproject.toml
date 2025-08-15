@@ -66,7 +66,7 @@ Issues = "https://github.com/vespo92/TrueNasCoreMCP/issues"
 Changelog = "https://github.com/vespo92/TrueNasCoreMCP/blob/main/CHANGELOG.md"
 
 [project.scripts]
-truenas-mcp = "truenas_mcp_server:main"
+truenas-mcp-server = "truenas_mcp_server:main"
 
 [tool.setuptools]
 include-package-data = true

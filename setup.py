@@ -58,7 +58,7 @@ setup(
     # Entry points
     entry_points={
         "console_scripts": [
-            "truenas-mcp=truenas_mcp_server:main",
+            "truenas-mcp-server=truenas_mcp_server:main",
         ],
     },
     

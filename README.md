@@ -303,13 +303,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Use environment variables for sensitive data
 - Enable SSL verification in production
 - Restrict destructive operations by default
-- Report security issues to vespo21@gmail.com
+- Report security issues via GitHub Issues
 
 ## 📞 Support
 
 - **Issues**: [GitHub Issues](https://github.com/vespo92/TrueNasCoreMCP/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/vespo92/TrueNasCoreMCP/discussions)
-- **Email**: vespo21@gmail.com
 
 ## 🙏 Acknowledgments
 
