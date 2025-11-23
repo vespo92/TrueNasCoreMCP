@@ -13,9 +13,16 @@ from .client import get_client, close_client
 from .tools import (
     DebugTools,
     UserTools,
+    GroupTools,
     StorageTools,
     SharingTools,
-    SnapshotTools
+    SnapshotTools,
+    SystemTools,
+    DiskTools,
+    NetworkTools,
+    ReplicationTools,
+    AppTools,
+    VMTools,
 )
 
 # Configure logging
@@ -63,10 +70,17 @@ class TrueNASMCPServer:
         
         # Initialize tool instances
         tool_classes = [
+            SystemTools,
             UserTools,
+            GroupTools,
             StorageTools,
             SharingTools,
-            SnapshotTools
+            SnapshotTools,
+            DiskTools,
+            NetworkTools,
+            ReplicationTools,
+            AppTools,
+            VMTools,
         ]
         
         # Add debug tools if enabled

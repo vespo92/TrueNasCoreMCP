@@ -5,6 +5,127 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.0] - 2025-01-23
+
+### Major Feature Expansion
+
+This release massively expands the TrueNAS MCP Server with 7 new tool modules, adding comprehensive coverage for system management, networking, replication, and TrueNAS Scale-specific features like Apps and VMs.
+
+### Added
+
+#### System Management Tools (11 tools)
+- `get_system_info` - Get comprehensive system information including version, hardware, uptime
+- `get_system_version` - Get TrueNAS version details with Scale/Core detection
+- `list_services` - List all system services with status
+- `get_service_status` - Get status of a specific service
+- `start_service` - Start a system service
+- `stop_service` - Stop a system service
+- `restart_service` - Restart a system service
+- `list_alerts` - List all system alerts with severity levels
+- `dismiss_alert` - Dismiss system alerts
+- `get_boot_info` - Get boot pool and environment information
+- `get_update_status` - Check for available system updates
+
+#### Group Management Tools (7 tools)
+- `list_groups` - List all groups with categorization
+- `get_group` - Get detailed group information with members
+- `create_group` - Create new groups with sudo support
+- `update_group` - Update group properties
+- `delete_group` - Delete groups with safety checks
+- `add_user_to_group` - Add users to groups
+- `remove_user_from_group` - Remove users from groups
+
+#### Disk Management Tools (8 tools)
+- `list_disks` - List all disks with SSD/HDD detection
+- `get_disk` - Get detailed disk information
+- `get_disk_smart` - Get SMART data and attributes
+- `run_smart_test` - Run SMART tests (SHORT, LONG, CONVEYANCE, OFFLINE)
+- `get_smart_test_results` - Get SMART test results
+- `list_unused_disks` - List disks not in pools
+- `get_disk_temperatures` - Get temperature readings with status indicators
+- `wipe_disk` - Securely wipe disks (destructive)
+
+#### Network Tools (11 tools)
+- `list_network_interfaces` - List all interfaces with IP addresses
+- `get_network_interface` - Get detailed interface information
+- `get_network_configuration` - Get global network configuration
+- `list_static_routes` - List all static routes
+- `get_dns_config` - Get DNS server configuration
+- `update_dns_config` - Update DNS servers
+- `test_network_connectivity` - Test network connectivity
+- `get_ipmi_info` - Get IPMI/BMC network information
+- `list_vlans` - List VLAN interfaces
+- `list_bridges` - List bridge interfaces
+- `list_lagg_interfaces` - List link aggregation interfaces
+
+#### Replication Tools (10 tools)
+- `list_replication_tasks` - List all replication tasks
+- `get_replication_task` - Get detailed replication task info
+- `run_replication_task` - Manually run a replication task
+- `create_replication_task` - Create new replication tasks (LOCAL, SSH, NETCAT)
+- `delete_replication_task` - Delete replication tasks
+- `list_ssh_connections` - List SSH connections for remote replication
+- `list_ssh_keypairs` - List SSH keypairs
+- `get_replication_history` - Get replication task run history
+- `list_cloud_sync_tasks` - List cloud sync tasks
+- `list_rsync_tasks` - List rsync tasks
+
+#### Application Tools - TrueNAS Scale (12 tools)
+- `list_apps` - List all installed applications
+- `get_app` - Get detailed application information
+- `start_app` - Start an application
+- `stop_app` - Stop an application
+- `restart_app` - Restart an application
+- `delete_app` - Delete an application
+- `list_app_catalog` - List available applications from catalog
+- `search_app_catalog` - Search for applications
+- `get_app_logs` - Get application container logs
+- `list_docker_images` - List all Docker images
+- `pull_docker_image` - Pull a Docker image
+- `get_kubernetes_status` - Get Kubernetes/container runtime status
+
+#### Virtual Machine Tools - TrueNAS Scale (12 tools)
+- `list_vms` - List all virtual machines
+- `get_vm` - Get detailed VM information with devices
+- `start_vm` - Start a virtual machine
+- `stop_vm` - Stop a virtual machine (graceful or force)
+- `restart_vm` - Restart a virtual machine
+- `create_vm` - Create new virtual machines
+- `delete_vm` - Delete virtual machines
+- `clone_vm` - Clone a virtual machine
+- `get_vm_status` - Get VM status
+- `list_vm_devices` - List devices attached to a VM
+- `get_vm_console` - Get VM console information
+- `get_virtualization_status` - Get virtualization support status
+
+### Changed
+
+- **Version bump**: 4.0.0 → 5.0.0
+- **Tool count**: 40+ → 110+ tools (175% increase)
+- **Module count**: 5 tool modules → 12 tool modules
+- **TrueNAS Scale support**: Full support for Scale-specific features
+
+### Summary
+
+| Category | Tools Added |
+|----------|-------------|
+| System Management | 11 |
+| Group Management | 7 |
+| Disk Management | 8 |
+| Network Management | 11 |
+| Replication & Backup | 10 |
+| Apps (Scale) | 12 |
+| VMs (Scale) | 12 |
+| **Total New Tools** | **71** |
+
+### Compatibility
+
+- Works with TrueNAS Core and TrueNAS Scale
+- Scale-specific features (Apps, VMs) gracefully handle Core systems
+- All existing tools remain unchanged and backward compatible
+
+---
+
 ## [4.0.0] - 2025-01-16
 
 ### Major Optimizations & Production Enhancements
