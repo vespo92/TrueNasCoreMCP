@@ -5,16 +5,21 @@
 [![License](https://img.shields.io/badge/license-MIT-purple)](LICENSE)
 [![PyPI Version](https://img.shields.io/pypi/v/truenas-mcp-server)](https://pypi.org/project/truenas-mcp-server/)
 
-A production-ready Model Context Protocol (MCP) server for TrueNAS Core systems. Control and manage your TrueNAS storage through natural language with Claude or other MCP-compatible clients.
+A production-ready Model Context Protocol (MCP) server for TrueNAS Core and SCALE systems. Control and manage your TrueNAS storage and virtualization through natural language with Claude or other MCP-compatible clients.
 
 ## 🚀 Features
 
 ### Core Capabilities
 - **User Management** - Create, update, delete users and manage permissions
-- **Storage Management** - Manage pools, datasets, volumes with full ZFS support  
+- **Storage Management** - Manage pools, datasets, volumes with full ZFS support
 - **File Sharing** - Configure SMB, NFS, and iSCSI shares
 - **Snapshot Management** - Create, delete, rollback snapshots with automation
 - **System Monitoring** - Check system health, pool status, and resource usage
+
+### Virtualization (TrueNAS SCALE 25.04+)
+- **Apps** - Manage Docker Compose-based TrueNAS applications
+- **Incus Instances** - Control Incus VMs and containers
+- **Legacy VMs** - Manage bhyve virtual machines
 
 ### Enterprise Features
 - **Type-Safe Operations** - Full Pydantic models for request/response validation
@@ -123,6 +128,13 @@ Once configured, you can interact with TrueNAS using natural language:
 "Set up an SMB share for the documents dataset"
 "Create a snapshot of all datasets in the tank pool"
 "Show me users who have sudo privileges"
+
+# TrueNAS SCALE virtualization examples
+"List all running apps and their status"
+"Get the configuration for the sonarr app"
+"Show me all Incus VMs and containers"
+"Update the crypto-nodes VM to use 8 CPUs"
+"Restart the plex app"
 ```
 
 ### As a Python Library
@@ -199,6 +211,34 @@ asyncio.run(main())
 - `clone_snapshot` - Clone to new dataset
 - `create_snapshot_task` - Setup automated snapshots
 
+### App Management (TrueNAS SCALE)
+- `list_apps` - Show all TrueNAS apps with status
+- `get_app` - Get detailed app information
+- `get_app_config` - Get full app configuration
+- `start_app` - Start an app
+- `stop_app` - Stop an app
+- `restart_app` - Restart an app
+- `redeploy_app` - Redeploy after config changes
+- `update_app_config` - Update app configuration
+
+### Incus Instance Management (TrueNAS SCALE)
+- `list_instances` - Show VMs and containers
+- `get_instance` - Get instance details
+- `start_instance` - Start an instance
+- `stop_instance` - Stop an instance
+- `restart_instance` - Restart an instance
+- `update_instance` - Update CPU/memory/autostart
+- `list_instance_devices` - Show attached devices
+
+### Legacy VM Management
+- `list_legacy_vms` - Show bhyve VMs
+- `get_legacy_vm` - Get VM details
+- `start_legacy_vm` - Start a VM
+- `stop_legacy_vm` - Stop a VM
+- `restart_legacy_vm` - Restart a VM
+- `update_legacy_vm` - Update VM configuration
+- `get_legacy_vm_status` - Get VM status
+
 ### Debug Tools (Development Mode)
 - `debug_connection` - Check connection settings
 - `test_connection` - Verify API connectivity
@@ -221,14 +261,20 @@ truenas_mcp_server/
 │   ├── base.py          # Base models
 │   ├── user.py          # User models
 │   ├── storage.py       # Storage models
-│   └── sharing.py       # Share models
+│   ├── sharing.py       # Share models
+│   ├── app.py           # App models (SCALE)
+│   ├── instance.py      # Incus instance models (SCALE)
+│   └── vm.py            # Legacy VM models
 ├── tools/                # MCP tools
 │   ├── __init__.py
 │   ├── base.py          # Base tool class
 │   ├── users.py         # User tools
 │   ├── storage.py       # Storage tools
 │   ├── sharing.py       # Share tools
-│   └── snapshots.py     # Snapshot tools
+│   ├── snapshots.py     # Snapshot tools
+│   ├── apps.py          # App tools (SCALE)
+│   ├── instances.py     # Incus instance tools (SCALE)
+│   └── vms.py           # Legacy VM tools
 └── exceptions.py         # Custom exceptions
 ```
 
