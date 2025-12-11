@@ -247,6 +247,50 @@ class TrueNASClient:
         return response.json()
     
     @retry_on_failure()
+    async def post_raw(
+        self,
+        endpoint: str,
+        data: str,
+        content_type: str = "application/json"
+    ) -> Dict[str, Any]:
+        """
+        Send POST request with raw string body to TrueNAS API
+
+        Some TrueNAS API endpoints expect a plain string body rather than
+        a JSON object. For example:
+        - POST /app/config expects: "app_name" (plain quoted string)
+        - POST /virt/instance/start expects: "instance_name" (plain quoted string)
+
+        Args:
+            endpoint: API endpoint (relative to base URL)
+            data: Raw string body (should include quotes if needed)
+            content_type: Content-Type header (default: application/json)
+
+        Returns:
+            Response data as dictionary
+        """
+        await self.ensure_connected()
+
+        self._log_request("POST", endpoint)
+        logger.debug(f"Raw body: {data}")
+
+        response = await self._client.post(
+            endpoint,
+            content=data.encode(),
+            headers={"Content-Type": content_type}
+        )
+        self._log_response(response)
+
+        if response.status_code >= 400:
+            self._handle_error_response(response)
+
+        # Handle empty responses
+        if not response.content:
+            return {}
+
+        return response.json()
+
+    @retry_on_failure()
     async def delete(self, endpoint: str) -> bool:
         """
         Send DELETE request to TrueNAS API

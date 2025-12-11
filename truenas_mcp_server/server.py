@@ -15,7 +15,10 @@ from .tools import (
     UserTools,
     StorageTools,
     SharingTools,
-    SnapshotTools
+    SnapshotTools,
+    AppTools,
+    InstanceTools,
+    LegacyVMTools,
 )
 
 # Configure logging
@@ -66,7 +69,11 @@ class TrueNASMCPServer:
             UserTools,
             StorageTools,
             SharingTools,
-            SnapshotTools
+            SnapshotTools,
+            # Virtualization tools (TrueNAS SCALE 25.04+)
+            AppTools,
+            InstanceTools,
+            LegacyVMTools,
         ]
         
         # Add debug tools if enabled
