@@ -5,20 +5,23 @@
 [![License](https://img.shields.io/badge/license-MIT-purple)](LICENSE)
 [![PyPI Version](https://img.shields.io/pypi/v/truenas-mcp-server)](https://pypi.org/project/truenas-mcp-server/)
 
-A production-ready Model Context Protocol (MCP) server for TrueNAS Core and SCALE systems. Control and manage your TrueNAS storage and virtualization through natural language with Claude or other MCP-compatible clients.
+A production-ready Model Context Protocol (MCP) server for **TrueNAS Core and SCALE** systems. Control and manage your TrueNAS storage and virtualization through natural language with Claude or other MCP-compatible clients.
+
+**Automatic variant detection**: The server automatically detects whether you're connected to TrueNAS Core or SCALE and enables the appropriate features.
 
 ## 🚀 Features
 
-### Core Capabilities
+### Universal Features (Core & SCALE)
 - **User Management** - Create, update, delete users and manage permissions
 - **Storage Management** - Manage pools, datasets, volumes with full ZFS support
 - **File Sharing** - Configure SMB, NFS, and iSCSI shares
 - **Snapshot Management** - Create, delete, rollback snapshots with automation
 - **System Monitoring** - Check system health, pool status, and resource usage
 
-### Virtualization (TrueNAS SCALE 25.04+)
+### TrueNAS SCALE Features (24.04+)
+*Automatically enabled when connected to SCALE*
 - **Apps** - Manage Docker Compose-based TrueNAS applications
-- **Incus Instances** - Control Incus VMs and containers
+- **Incus Instances** - Control Incus VMs and containers (SCALE 25.04+)
 - **Legacy VMs** - Manage bhyve virtual machines
 
 ### Enterprise Features
