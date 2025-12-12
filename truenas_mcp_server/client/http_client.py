@@ -6,7 +6,6 @@ import asyncio
 import logging
 from typing import Optional, Dict, Any, Union
 from functools import wraps
-from enum import Enum
 import httpx
 from httpx import Response, HTTPError, TimeoutException, ConnectError
 
@@ -19,13 +18,6 @@ from ..exceptions import (
     TrueNASTimeoutError,
     TrueNASRateLimitError
 )
-
-
-class TrueNASVariant(str, Enum):
-    """TrueNAS product variant"""
-    CORE = "core"       # TrueNAS Core (FreeBSD-based)
-    SCALE = "scale"     # TrueNAS SCALE (Linux-based)
-    UNKNOWN = "unknown"
 
 logger = logging.getLogger(__name__)
 
@@ -91,7 +83,7 @@ class TrueNASClient:
     def __init__(self, settings=None):
         """
         Initialize the TrueNAS client
-
+        
         Args:
             settings: Optional Settings instance (uses get_settings() if not provided)
         """
@@ -99,9 +91,6 @@ class TrueNASClient:
         self._client = None
         self._request_count = 0
         self._error_count = 0
-        self._variant: TrueNASVariant = TrueNASVariant.UNKNOWN
-        self._version: Optional[str] = None
-        self._system_info: Optional[Dict[str, Any]] = None
         
     async def __aenter__(self):
         """Async context manager entry"""
@@ -258,50 +247,6 @@ class TrueNASClient:
         return response.json()
     
     @retry_on_failure()
-    async def post_raw(
-        self,
-        endpoint: str,
-        data: str,
-        content_type: str = "application/json"
-    ) -> Dict[str, Any]:
-        """
-        Send POST request with raw string body to TrueNAS API
-
-        Some TrueNAS API endpoints expect a plain string body rather than
-        a JSON object. For example:
-        - POST /app/config expects: "app_name" (plain quoted string)
-        - POST /virt/instance/start expects: "instance_name" (plain quoted string)
-
-        Args:
-            endpoint: API endpoint (relative to base URL)
-            data: Raw string body (should include quotes if needed)
-            content_type: Content-Type header (default: application/json)
-
-        Returns:
-            Response data as dictionary
-        """
-        await self.ensure_connected()
-
-        self._log_request("POST", endpoint)
-        logger.debug(f"Raw body: {data}")
-
-        response = await self._client.post(
-            endpoint,
-            content=data.encode(),
-            headers={"Content-Type": content_type}
-        )
-        self._log_response(response)
-
-        if response.status_code >= 400:
-            self._handle_error_response(response)
-
-        # Handle empty responses
-        if not response.content:
-            return {}
-
-        return response.json()
-
-    @retry_on_failure()
     async def delete(self, endpoint: str) -> bool:
         """
         Send DELETE request to TrueNAS API
@@ -330,77 +275,6 @@ class TrueNASClient:
             "errors": self._error_count,
             "error_rate": self._error_count / max(self._request_count, 1)
         }
-
-    @property
-    def variant(self) -> TrueNASVariant:
-        """Get the detected TrueNAS variant"""
-        return self._variant
-
-    @property
-    def version(self) -> Optional[str]:
-        """Get the TrueNAS version string"""
-        return self._version
-
-    @property
-    def is_scale(self) -> bool:
-        """Check if connected to TrueNAS SCALE"""
-        return self._variant == TrueNASVariant.SCALE
-
-    @property
-    def is_core(self) -> bool:
-        """Check if connected to TrueNAS Core"""
-        return self._variant == TrueNASVariant.CORE
-
-    async def detect_variant(self) -> TrueNASVariant:
-        """
-        Detect the TrueNAS variant (Core vs SCALE) by querying system info
-
-        TrueNAS SCALE returns system info with 'version' containing 'SCALE'
-        TrueNAS Core returns system info with 'version' containing 'CORE'
-
-        Returns:
-            TrueNASVariant enum value
-        """
-        await self.ensure_connected()
-
-        try:
-            # Query system info
-            system_info = await self.get("/system/info")
-            self._system_info = system_info
-
-            # Extract version info
-            version = system_info.get("version", "")
-            self._version = version
-
-            # Detect variant from version string
-            version_upper = version.upper()
-            if "SCALE" in version_upper:
-                self._variant = TrueNASVariant.SCALE
-                logger.info(f"Detected TrueNAS SCALE: {version}")
-            elif "CORE" in version_upper:
-                self._variant = TrueNASVariant.CORE
-                logger.info(f"Detected TrueNAS Core: {version}")
-            else:
-                # Additional detection: SCALE is Linux-based
-                # Try querying an endpoint that only exists on SCALE
-                try:
-                    await self.get("/app")
-                    self._variant = TrueNASVariant.SCALE
-                    logger.info(f"Detected TrueNAS SCALE (via /app endpoint): {version}")
-                except TrueNASAPIError:
-                    # /app doesn't exist - likely Core
-                    self._variant = TrueNASVariant.CORE
-                    logger.info(f"Detected TrueNAS Core (via /app 404): {version}")
-
-        except Exception as e:
-            logger.warning(f"Failed to detect TrueNAS variant: {e}")
-            self._variant = TrueNASVariant.UNKNOWN
-
-        return self._variant
-
-    def get_system_info(self) -> Optional[Dict[str, Any]]:
-        """Get cached system info (call detect_variant first)"""
-        return self._system_info
 
 
 # Global client instance
