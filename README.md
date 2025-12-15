@@ -247,6 +247,74 @@ asyncio.run(main())
 - `test_connection` - Verify API connectivity
 - `get_server_stats` - Server statistics
 
+## 📄 Pagination and Response Control
+
+All list operations support pagination to reduce token usage when working with LLM clients. Get operations support optional raw API response inclusion for debugging.
+
+### Pagination Parameters
+
+All `list_*` tools support these parameters:
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `limit` | integer | 100 | Maximum items to return (max: 500) |
+| `offset` | integer | 0 | Number of items to skip |
+
+**Response format:**
+```json
+{
+  "success": true,
+  "items": [...],
+  "metadata": { ... },
+  "pagination": {
+    "total": 250,
+    "limit": 100,
+    "offset": 0,
+    "returned": 100,
+    "has_more": true
+  }
+}
+```
+
+**Usage examples:**
+```
+"List the first 10 datasets"          → limit=10
+"Show users 50-100"                   → limit=50, offset=50
+"Get all SMB shares (up to 500)"      → limit=500
+```
+
+### Include Raw API Response
+
+Get operations for apps, instances, and VMs support the `include_raw` parameter:
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `include_raw` | boolean | false | Include full API response for debugging |
+
+**When to use `include_raw=true`:**
+- Debugging API response structure
+- Accessing fields not included in the formatted response
+- Troubleshooting integration issues
+
+**Tools supporting `include_raw`:**
+- `get_app` - App details
+- `get_instance` - Incus instance details
+- `get_legacy_vm` - Legacy VM details
+
+### Dataset Response Control
+
+The `list_datasets` and `get_dataset` tools support an additional parameter:
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `include_children` | boolean | true | Include child datasets (can reduce payload significantly) |
+
+**Usage:**
+```
+"List only top-level datasets"        → include_children=false
+"Get tank dataset without children"   → include_children=false
+```
+
 ## 🏗️ Architecture
 
 ```

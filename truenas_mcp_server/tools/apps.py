@@ -27,10 +27,16 @@ class AppTools(BaseTool):
     def get_tool_definitions(self) -> list:
         """Get tool definitions for app management"""
         return [
-            ("list_apps", self.list_apps, "List all TrueNAS apps with status", {}),
+            ("list_apps", self.list_apps, "List all TrueNAS apps with status",
+             {"limit": {"type": "integer", "required": False,
+                       "description": "Max items to return (default: 100, max: 500)"},
+              "offset": {"type": "integer", "required": False,
+                        "description": "Items to skip for pagination"}}),
             ("get_app", self.get_app, "Get detailed information about a specific app",
              {"app_name": {"type": "string", "required": True,
-                         "description": "Name of the app"}}),
+                         "description": "Name of the app"},
+              "include_raw": {"type": "boolean", "required": False,
+                             "description": "Include full API response for debugging (default: false)"}}),
             ("get_app_config", self.get_app_config,
              "Get the full configuration of an app",
              {"app_name": {"type": "string", "required": True,
@@ -59,9 +65,17 @@ class AppTools(BaseTool):
         ]
 
     @tool_handler
-    async def list_apps(self) -> Dict[str, Any]:
+    async def list_apps(
+        self,
+        limit: int = BaseTool.DEFAULT_LIMIT,
+        offset: int = 0
+    ) -> Dict[str, Any]:
         """
         List all TrueNAS apps with their status
+
+        Args:
+            limit: Maximum number of items to return (default: 100, max: 500)
+            offset: Number of items to skip for pagination
 
         Returns:
             Dictionary containing list of apps with status and metadata
@@ -95,28 +109,39 @@ class AppTools(BaseTool):
             }
             app_list.append(app_info)
 
-        # Count by state
+        # Count by state (before pagination)
         state_counts = {}
         for app in app_list:
             state = app["state"]
             state_counts[state] = state_counts.get(state, 0) + 1
 
+        total_apps = len(app_list)
+
+        # Apply pagination
+        paginated_apps, pagination = self.apply_pagination(app_list, limit, offset)
+
         return {
             "success": True,
-            "apps": app_list,
+            "apps": paginated_apps,
             "metadata": {
-                "total_apps": len(app_list),
+                "total_apps": total_apps,
                 "state_counts": state_counts,
-            }
+            },
+            "pagination": pagination
         }
 
     @tool_handler
-    async def get_app(self, app_name: str) -> Dict[str, Any]:
+    async def get_app(
+        self,
+        app_name: str,
+        include_raw: bool = False
+    ) -> Dict[str, Any]:
         """
         Get detailed information about a specific app
 
         Args:
             app_name: Name of the app
+            include_raw: Include full API response for debugging (default: false)
 
         Returns:
             Dictionary containing app details
@@ -140,7 +165,7 @@ class AppTools(BaseTool):
                     "error": f"App '{app_name}' not found"
                 }
 
-        return {
+        result = {
             "success": True,
             "app": {
                 "name": app.get("id") or app.get("name"),
@@ -150,9 +175,13 @@ class AppTools(BaseTool):
                 "upgrade_available": app.get("upgrade_available", False),
                 "portal": app.get("portal"),
                 "metadata": app.get("metadata", {}),
-            },
-            "raw": app  # Include full response for debugging
+            }
         }
+
+        if include_raw:
+            result["raw"] = app
+
+        return result
 
     @tool_handler
     async def get_app_config(self, app_name: str) -> Dict[str, Any]:

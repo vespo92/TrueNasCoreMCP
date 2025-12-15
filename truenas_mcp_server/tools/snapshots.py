@@ -14,7 +14,12 @@ class SnapshotTools(BaseTool):
         """Get tool definitions for snapshot management"""
         return [
             ("list_snapshots", self.list_snapshots, "List snapshots for a dataset",
-             {"dataset": {"type": "string", "required": False}}),
+             {"dataset": {"type": "string", "required": False,
+                         "description": "Filter by dataset path"},
+              "limit": {"type": "integer", "required": False,
+                       "description": "Max items to return (default: 100, max: 500)"},
+              "offset": {"type": "integer", "required": False,
+                        "description": "Items to skip for pagination"}}),
             ("create_snapshot", self.create_snapshot, "Create a snapshot of a dataset",
              {"dataset": {"type": "string", "required": True},
               "name": {"type": "string", "required": False},
@@ -27,7 +32,11 @@ class SnapshotTools(BaseTool):
             ("clone_snapshot", self.clone_snapshot, "Clone a snapshot to a new dataset",
              {"snapshot": {"type": "string", "required": True},
               "target": {"type": "string", "required": True}}),
-            ("list_snapshot_tasks", self.list_snapshot_tasks, "List automated snapshot tasks", {}),
+            ("list_snapshot_tasks", self.list_snapshot_tasks, "List automated snapshot tasks",
+             {"limit": {"type": "integer", "required": False,
+                       "description": "Max items to return (default: 100, max: 500)"},
+              "offset": {"type": "integer", "required": False,
+                        "description": "Items to skip for pagination"}}),
             ("create_snapshot_task", self.create_snapshot_task, "Create automated snapshot task",
              {"dataset": {"type": "string", "required": True},
               "schedule": {"type": "object", "required": True},
@@ -36,25 +45,32 @@ class SnapshotTools(BaseTool):
         ]
     
     @tool_handler
-    async def list_snapshots(self, dataset: Optional[str] = None) -> Dict[str, Any]:
+    async def list_snapshots(
+        self,
+        dataset: Optional[str] = None,
+        limit: int = BaseTool.DEFAULT_LIMIT,
+        offset: int = 0
+    ) -> Dict[str, Any]:
         """
         List snapshots for a dataset or all snapshots
-        
+
         Args:
             dataset: Optional dataset path to filter snapshots
-            
+            limit: Maximum number of items to return (default: 100, max: 500)
+            offset: Number of items to skip for pagination
+
         Returns:
             Dictionary containing list of snapshots
         """
         await self.ensure_initialized()
-        
+
         # Get all snapshots
         params = {}
         if dataset:
             params["dataset"] = dataset
-        
+
         snapshots = await self.client.get("/zfs/snapshot", params)
-        
+
         snapshot_list = []
         for snap in snapshots:
             # Parse snapshot name to extract dataset and snapshot name
@@ -84,22 +100,26 @@ class SnapshotTools(BaseTool):
         # Sort by creation time (newest first)
         snapshot_list.sort(key=lambda x: x.get("created", 0), reverse=True)
         
-        # Group by dataset
+        # Group by dataset (before pagination for accurate counts)
         by_dataset = {}
         for snap in snapshot_list:
             ds = snap["dataset"]
             if ds not in by_dataset:
                 by_dataset[ds] = []
             by_dataset[ds].append(snap)
-        
+
+        # Apply pagination
+        paginated_snapshots, pagination = self.apply_pagination(snapshot_list, limit, offset)
+
         return {
             "success": True,
-            "snapshots": snapshot_list,
+            "snapshots": paginated_snapshots,
             "metadata": {
                 "total_snapshots": len(snapshot_list),
                 "datasets_with_snapshots": len(by_dataset),
                 "by_dataset": {ds: len(snaps) for ds, snaps in by_dataset.items()}
-            }
+            },
+            "pagination": pagination
         }
     
     @tool_handler
@@ -293,15 +313,23 @@ class SnapshotTools(BaseTool):
         }
     
     @tool_handler
-    async def list_snapshot_tasks(self) -> Dict[str, Any]:
+    async def list_snapshot_tasks(
+        self,
+        limit: int = BaseTool.DEFAULT_LIMIT,
+        offset: int = 0
+    ) -> Dict[str, Any]:
         """
         List automated snapshot tasks
-        
+
+        Args:
+            limit: Maximum number of items to return (default: 100, max: 500)
+            offset: Number of items to skip for pagination
+
         Returns:
             Dictionary containing list of snapshot tasks
         """
         await self.ensure_initialized()
-        
+
         tasks = await self.client.get("/pool/snapshottask")
         
         task_list = []
@@ -325,15 +353,24 @@ class SnapshotTools(BaseTool):
                 "allow_empty": task.get("allow_empty", True)
             }
             task_list.append(task_info)
-        
+
+        # Calculate counts before pagination
+        total_tasks = len(task_list)
+        enabled_tasks = sum(1 for t in task_list if t["enabled"])
+        recursive_tasks = sum(1 for t in task_list if t["recursive"])
+
+        # Apply pagination
+        paginated_tasks, pagination = self.apply_pagination(task_list, limit, offset)
+
         return {
             "success": True,
-            "tasks": task_list,
+            "tasks": paginated_tasks,
             "metadata": {
-                "total_tasks": len(task_list),
-                "enabled_tasks": sum(1 for t in task_list if t["enabled"]),
-                "recursive_tasks": sum(1 for t in task_list if t["recursive"])
-            }
+                "total_tasks": total_tasks,
+                "enabled_tasks": enabled_tasks,
+                "recursive_tasks": recursive_tasks
+            },
+            "pagination": pagination
         }
     
     @tool_handler

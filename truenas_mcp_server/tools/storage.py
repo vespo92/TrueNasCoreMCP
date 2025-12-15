@@ -12,12 +12,24 @@ class StorageTools(BaseTool):
     def get_tool_definitions(self) -> list:
         """Get tool definitions for storage management"""
         return [
-            ("list_pools", self.list_pools, "List all storage pools", {}),
+            ("list_pools", self.list_pools, "List all storage pools",
+             {"limit": {"type": "integer", "required": False,
+                       "description": "Max items to return (default: 100, max: 500)"},
+              "offset": {"type": "integer", "required": False,
+                        "description": "Items to skip for pagination"}}),
             ("get_pool_status", self.get_pool_status, "Get detailed status of a specific pool",
              {"pool_name": {"type": "string", "required": True}}),
-            ("list_datasets", self.list_datasets, "List all datasets", {}),
+            ("list_datasets", self.list_datasets, "List all datasets",
+             {"limit": {"type": "integer", "required": False,
+                       "description": "Max items to return (default: 100, max: 500)"},
+              "offset": {"type": "integer", "required": False,
+                        "description": "Items to skip for pagination"},
+              "include_children": {"type": "boolean", "required": False,
+                                  "description": "Include child datasets in response (default: true)"}}),
             ("get_dataset", self.get_dataset, "Get detailed information about a dataset",
-             {"dataset": {"type": "string", "required": True}}),
+             {"dataset": {"type": "string", "required": True},
+              "include_children": {"type": "boolean", "required": False,
+                                  "description": "Include child datasets in response (default: true)"}}),
             ("create_dataset", self.create_dataset, "Create a new dataset",
              {"pool": {"type": "string", "required": True},
               "name": {"type": "string", "required": True},
@@ -33,17 +45,21 @@ class StorageTools(BaseTool):
         ]
     
     @tool_handler
-    async def list_pools(self) -> Dict[str, Any]:
+    async def list_pools(self, limit: int = 100, offset: int = 0) -> Dict[str, Any]:
         """
         List all storage pools
-        
+
+        Args:
+            limit: Maximum items to return (default: 100, max: 500)
+            offset: Number of items to skip for pagination
+
         Returns:
             Dictionary containing list of pools with their status
         """
         await self.ensure_initialized()
-        
+
         pools = await self.client.get("/pool")
-        
+
         pool_list = []
         for pool in pools:
             # Calculate usage percentage
@@ -51,7 +67,7 @@ class StorageTools(BaseTool):
             allocated = pool.get("allocated", 0)
             free = pool.get("free", 0)
             usage_percent = (allocated / size * 100) if size > 0 else 0
-            
+
             pool_info = {
                 "name": pool.get("name"),
                 "status": pool.get("status"),
@@ -71,17 +87,20 @@ class StorageTools(BaseTool):
                 }
             }
             pool_list.append(pool_info)
-        
-        # Calculate totals
+
+        # Calculate totals (before pagination)
         total_size = sum(p.get("size", 0) for p in pools)
         total_allocated = sum(p.get("allocated", 0) for p in pools)
         total_free = sum(p.get("free", 0) for p in pools)
-        
+
+        # Apply pagination
+        paginated_pools, pagination = self.apply_pagination(pool_list, limit, offset)
+
         return {
             "success": True,
-            "pools": pool_list,
+            "pools": paginated_pools,
+            "pagination": pagination,
             "metadata": {
-                "pool_count": len(pool_list),
                 "healthy_pools": sum(1 for p in pool_list if p["healthy"]),
                 "degraded_pools": sum(1 for p in pool_list if not p["healthy"]),
                 "total_capacity": self.format_size(total_size),
@@ -184,23 +203,33 @@ class StorageTools(BaseTool):
         }
     
     @tool_handler
-    async def list_datasets(self) -> Dict[str, Any]:
+    async def list_datasets(
+        self,
+        limit: int = 100,
+        offset: int = 0,
+        include_children: bool = True
+    ) -> Dict[str, Any]:
         """
         List all datasets
-        
+
+        Args:
+            limit: Maximum items to return (default: 100, max: 500)
+            offset: Number of items to skip for pagination
+            include_children: Include child datasets in response (default: true)
+
         Returns:
             Dictionary containing list of datasets
         """
         await self.ensure_initialized()
-        
+
         datasets = await self.client.get("/pool/dataset")
-        
+
         dataset_list = []
         for ds in datasets:
             # Calculate usage
             used = ds.get("used", {}).get("parsed") if isinstance(ds.get("used"), dict) else ds.get("used", 0)
             available = ds.get("available", {}).get("parsed") if isinstance(ds.get("available"), dict) else ds.get("available", 0)
-            
+
             dataset_info = {
                 "name": ds.get("name"),
                 "pool": ds.get("pool"),
@@ -212,23 +241,29 @@ class StorageTools(BaseTool):
                 "used": self.format_size(used) if isinstance(used, (int, float)) else str(used),
                 "available": self.format_size(available) if isinstance(available, (int, float)) else str(available),
                 "quota": ds.get("quota", {}).get("value") if isinstance(ds.get("quota"), dict) else ds.get("quota"),
-                "children": ds.get("children", [])
             }
+            # Only include children if requested
+            if include_children:
+                dataset_info["children"] = ds.get("children", [])
+
             dataset_list.append(dataset_info)
-        
-        # Organize by pool
+
+        # Organize by pool (before pagination)
         pools_datasets = {}
         for ds in dataset_list:
             pool = ds["pool"]
             if pool not in pools_datasets:
                 pools_datasets[pool] = []
             pools_datasets[pool].append(ds)
-        
+
+        # Apply pagination
+        paginated_datasets, pagination = self.apply_pagination(dataset_list, limit, offset)
+
         return {
             "success": True,
-            "datasets": dataset_list,
+            "datasets": paginated_datasets,
+            "pagination": pagination,
             "metadata": {
-                "total_datasets": len(dataset_list),
                 "by_pool": {pool: len(datasets) for pool, datasets in pools_datasets.items()},
                 "encrypted_datasets": sum(1 for ds in dataset_list if ds.get("encrypted")),
                 "compressed_datasets": sum(1 for ds in dataset_list if ds.get("compression") and ds.get("compression") != "off")
@@ -236,32 +271,33 @@ class StorageTools(BaseTool):
         }
     
     @tool_handler
-    async def get_dataset(self, dataset: str) -> Dict[str, Any]:
+    async def get_dataset(self, dataset: str, include_children: bool = True) -> Dict[str, Any]:
         """
         Get detailed information about a dataset
-        
+
         Args:
             dataset: Dataset path (e.g., "tank/data")
-            
+            include_children: Include child datasets in response (default: true)
+
         Returns:
             Dictionary containing dataset details
         """
         await self.ensure_initialized()
-        
+
         datasets = await self.client.get("/pool/dataset")
-        
+
         target_dataset = None
         for ds in datasets:
             if ds.get("name") == dataset:
                 target_dataset = ds
                 break
-        
+
         if not target_dataset:
             return {
                 "success": False,
                 "error": f"Dataset '{dataset}' not found"
             }
-        
+
         # Extract all properties
         properties = {}
         for key in ["compression", "deduplication", "atime", "sync", "quota", "refquota",
@@ -272,8 +308,8 @@ class StorageTools(BaseTool):
                 properties[key] = value.get("value")
             else:
                 properties[key] = value
-        
-        return {
+
+        result = {
             "success": True,
             "dataset": {
                 "name": target_dataset.get("name"),
@@ -293,11 +329,16 @@ class StorageTools(BaseTool):
                     "usedbychildren": target_dataset.get("usedbychildren", {}).get("value") if isinstance(target_dataset.get("usedbychildren"), dict) else target_dataset.get("usedbychildren")
                 },
                 "properties": properties,
-                "children": target_dataset.get("children", []),
                 "snapshot_count": target_dataset.get("snapshot_count", 0),
                 "origin": target_dataset.get("origin", {}).get("value") if isinstance(target_dataset.get("origin"), dict) else target_dataset.get("origin")
             }
         }
+
+        # Only include children if requested
+        if include_children:
+            result["dataset"]["children"] = target_dataset.get("children", [])
+
+        return result
     
     @tool_handler
     async def create_dataset(

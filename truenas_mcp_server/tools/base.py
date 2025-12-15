@@ -4,7 +4,7 @@ Base class and utilities for MCP tools
 
 import logging
 from functools import wraps
-from typing import Any, Dict, Optional, Callable
+from typing import Any, Dict, List, Optional, Callable, Tuple
 from abc import ABC, abstractmethod
 
 from ..client import TrueNASClient
@@ -66,14 +66,19 @@ def tool_handler(func: Callable) -> Callable:
 class BaseTool(ABC):
     """
     Base class for all MCP tools
-    
+
     Provides common functionality for tool implementations including:
     - Client management
     - Configuration access
     - Logging setup
     - Error handling utilities
+    - Pagination support
     """
-    
+
+    # Pagination defaults
+    DEFAULT_LIMIT = 100
+    MAX_LIMIT = 500
+
     def __init__(self, client: Optional[TrueNASClient] = None, settings: Optional[Settings] = None):
         """
         Initialize the tool
@@ -179,14 +184,14 @@ class BaseTool(ABC):
     def validate_required_fields(self, data: Dict[str, Any], required: list) -> bool:
         """
         Validate that required fields are present in data
-        
+
         Args:
             data: Data dictionary to validate
             required: List of required field names
-            
+
         Returns:
             True if all required fields are present
-            
+
         Raises:
             ValueError: If any required fields are missing
         """
@@ -194,3 +199,36 @@ class BaseTool(ABC):
         if missing:
             raise ValueError(f"Missing required fields: {', '.join(missing)}")
         return True
+
+    def apply_pagination(
+        self,
+        items: List[Any],
+        limit: int = DEFAULT_LIMIT,
+        offset: int = 0
+    ) -> Tuple[List[Any], Dict[str, Any]]:
+        """
+        Apply pagination to a list of items
+
+        Args:
+            items: Full list of items to paginate
+            limit: Maximum items to return (capped at MAX_LIMIT)
+            offset: Number of items to skip
+
+        Returns:
+            Tuple of (paginated_items, pagination_metadata)
+        """
+        # Cap limit at MAX_LIMIT
+        limit = min(limit, self.MAX_LIMIT)
+
+        total = len(items)
+        paginated = items[offset:offset + limit]
+
+        pagination = {
+            "total": total,
+            "limit": limit,
+            "offset": offset,
+            "returned": len(paginated),
+            "has_more": offset + limit < total
+        }
+
+        return paginated, pagination
