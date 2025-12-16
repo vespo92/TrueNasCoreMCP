@@ -31,11 +31,17 @@ class InstanceTools(BaseTool):
             ("list_instances", self.list_instances,
              "List all Incus instances (VMs and Containers)",
              {"instance_type": {"type": "string", "required": False,
-                               "description": "Filter by type: 'VM' or 'CONTAINER' (optional)"}}),
+                               "description": "Filter by type: 'VM' or 'CONTAINER' (optional)"},
+              "limit": {"type": "integer", "required": False,
+                       "description": "Max items to return (default: 100, max: 500)"},
+              "offset": {"type": "integer", "required": False,
+                        "description": "Items to skip for pagination"}}),
             ("get_instance", self.get_instance,
              "Get detailed information about a specific instance",
              {"instance_name": {"type": "string", "required": True,
-                               "description": "Name of the instance"}}),
+                               "description": "Name of the instance"},
+              "include_raw": {"type": "boolean", "required": False,
+                             "description": "Include full API response for debugging (default: false)"}}),
             ("start_instance", self.start_instance, "Start an Incus instance",
              {"instance_name": {"type": "string", "required": True,
                                "description": "Name of the instance to start"}}),
@@ -68,13 +74,17 @@ class InstanceTools(BaseTool):
     @tool_handler
     async def list_instances(
         self,
-        instance_type: Optional[str] = None
+        instance_type: Optional[str] = None,
+        limit: int = BaseTool.DEFAULT_LIMIT,
+        offset: int = 0
     ) -> Dict[str, Any]:
         """
         List all Incus instances (VMs and Containers)
 
         Args:
             instance_type: Optional filter by type ('VM' or 'CONTAINER')
+            limit: Maximum number of items to return (default: 100, max: 500)
+            offset: Number of items to skip for pagination
 
         Returns:
             Dictionary containing list of instances with status
@@ -107,7 +117,7 @@ class InstanceTools(BaseTool):
             }
             instance_list.append(instance_info)
 
-        # Count by type and status
+        # Count by type and status (before pagination)
         type_counts = {}
         status_counts = {}
         for inst in instance_list:
@@ -117,23 +127,34 @@ class InstanceTools(BaseTool):
             status = inst["status"]
             status_counts[status] = status_counts.get(status, 0) + 1
 
+        total_instances = len(instance_list)
+
+        # Apply pagination
+        paginated_instances, pagination = self.apply_pagination(instance_list, limit, offset)
+
         return {
             "success": True,
-            "instances": instance_list,
+            "instances": paginated_instances,
             "metadata": {
-                "total_instances": len(instance_list),
+                "total_instances": total_instances,
                 "type_counts": type_counts,
                 "status_counts": status_counts,
-            }
+            },
+            "pagination": pagination
         }
 
     @tool_handler
-    async def get_instance(self, instance_name: str) -> Dict[str, Any]:
+    async def get_instance(
+        self,
+        instance_name: str,
+        include_raw: bool = False
+    ) -> Dict[str, Any]:
         """
         Get detailed information about a specific instance
 
         Args:
             instance_name: Name of the instance
+            include_raw: Include full API response for debugging (default: false)
 
         Returns:
             Dictionary containing instance details
@@ -153,7 +174,7 @@ class InstanceTools(BaseTool):
         memory_bytes = inst.get("memory", 0)
         memory_gb = round(memory_bytes / (1024**3), 2)
 
-        return {
+        result = {
             "success": True,
             "instance": {
                 "id": inst.get("id"),
@@ -166,9 +187,13 @@ class InstanceTools(BaseTool):
                 "autostart": inst.get("autostart"),
                 "image": inst.get("image"),
                 "environment": inst.get("environment", {}),
-            },
-            "raw": inst  # Include full response for debugging
+            }
         }
+
+        if include_raw:
+            result["raw"] = inst
+
+        return result
 
     @tool_handler
     async def start_instance(self, instance_name: str) -> Dict[str, Any]:

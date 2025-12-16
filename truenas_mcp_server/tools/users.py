@@ -12,8 +12,12 @@ class UserTools(BaseTool):
     def get_tool_definitions(self) -> list:
         """Get tool definitions for user management"""
         return [
-            ("list_users", self.list_users, "List all users in TrueNAS", {}),
-            ("get_user", self.get_user, "Get detailed information about a specific user", 
+            ("list_users", self.list_users, "List all users in TrueNAS",
+             {"limit": {"type": "integer", "required": False,
+                       "description": "Max items to return (default: 100, max: 500)"},
+              "offset": {"type": "integer", "required": False,
+                        "description": "Items to skip for pagination"}}),
+            ("get_user", self.get_user, "Get detailed information about a specific user",
              {"username": {"type": "string", "required": True}}),
             ("create_user", self.create_user, "Create a new user",
              {"username": {"type": "string", "required": True},
@@ -31,17 +35,25 @@ class UserTools(BaseTool):
         ]
     
     @tool_handler
-    async def list_users(self) -> Dict[str, Any]:
+    async def list_users(
+        self,
+        limit: int = BaseTool.DEFAULT_LIMIT,
+        offset: int = 0
+    ) -> Dict[str, Any]:
         """
         List all users in TrueNAS
-        
+
+        Args:
+            limit: Maximum number of items to return (default: 100, max: 500)
+            offset: Number of items to skip for pagination
+
         Returns:
             Dictionary containing list of users and metadata
         """
         await self.ensure_initialized()
-        
+
         users = await self.client.get("/user")
-        
+
         # Filter and format user data
         user_list = []
         for user in users:
@@ -59,20 +71,26 @@ class UserTools(BaseTool):
                 "builtin": user.get("builtin", False)
             }
             user_list.append(user_info)
-        
-        # Categorize users
-        system_users = [u for u in user_list if u["builtin"]]
-        regular_users = [u for u in user_list if not u["builtin"]]
-        
+
+        # Categorize users (before pagination)
+        system_users = sum(1 for u in user_list if u["builtin"])
+        regular_users = sum(1 for u in user_list if not u["builtin"])
+        locked_users = sum(1 for u in user_list if u["locked"])
+        total_count = len(user_list)
+
+        # Apply pagination
+        paginated_users, pagination = self.apply_pagination(user_list, limit, offset)
+
         return {
             "success": True,
-            "users": user_list,
+            "users": paginated_users,
             "metadata": {
-                "total_count": len(user_list),
-                "system_users": len(system_users),
-                "regular_users": len(regular_users),
-                "locked_users": sum(1 for u in user_list if u["locked"])
-            }
+                "total_count": total_count,
+                "system_users": system_users,
+                "regular_users": regular_users,
+                "locked_users": locked_users
+            },
+            "pagination": pagination
         }
     
     @tool_handler

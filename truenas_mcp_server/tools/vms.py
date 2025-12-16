@@ -25,11 +25,17 @@ class LegacyVMTools(BaseTool):
         """Get tool definitions for legacy VM management"""
         return [
             ("list_legacy_vms", self.list_legacy_vms,
-             "List all legacy bhyve VMs", {}),
+             "List all legacy bhyve VMs",
+             {"limit": {"type": "integer", "required": False,
+                       "description": "Max items to return (default: 100, max: 500)"},
+              "offset": {"type": "integer", "required": False,
+                        "description": "Items to skip for pagination"}}),
             ("get_legacy_vm", self.get_legacy_vm,
              "Get detailed information about a legacy VM",
              {"vm_id": {"type": "integer", "required": True,
-                       "description": "Numeric ID of the VM"}}),
+                       "description": "Numeric ID of the VM"},
+              "include_raw": {"type": "boolean", "required": False,
+                             "description": "Include full API response for debugging (default: false)"}}),
             ("start_legacy_vm", self.start_legacy_vm,
              "Start a legacy VM",
              {"vm_id": {"type": "integer", "required": True,
@@ -63,9 +69,17 @@ class LegacyVMTools(BaseTool):
         ]
 
     @tool_handler
-    async def list_legacy_vms(self) -> Dict[str, Any]:
+    async def list_legacy_vms(
+        self,
+        limit: int = BaseTool.DEFAULT_LIMIT,
+        offset: int = 0
+    ) -> Dict[str, Any]:
         """
         List all legacy bhyve VMs
+
+        Args:
+            limit: Maximum number of items to return (default: 100, max: 500)
+            offset: Number of items to skip for pagination
 
         Returns:
             Dictionary containing list of VMs with their status
@@ -92,28 +106,39 @@ class LegacyVMTools(BaseTool):
             }
             vm_list.append(vm_info)
 
-        # Count by status
+        # Count by status (before pagination)
         status_counts = {}
         for vm in vm_list:
             status = vm["status"]
             status_counts[status] = status_counts.get(status, 0) + 1
 
+        total_vms = len(vm_list)
+
+        # Apply pagination
+        paginated_vms, pagination = self.apply_pagination(vm_list, limit, offset)
+
         return {
             "success": True,
-            "vms": vm_list,
+            "vms": paginated_vms,
             "metadata": {
-                "total_vms": len(vm_list),
+                "total_vms": total_vms,
                 "status_counts": status_counts,
-            }
+            },
+            "pagination": pagination
         }
 
     @tool_handler
-    async def get_legacy_vm(self, vm_id: int) -> Dict[str, Any]:
+    async def get_legacy_vm(
+        self,
+        vm_id: int,
+        include_raw: bool = False
+    ) -> Dict[str, Any]:
         """
         Get detailed information about a legacy VM
 
         Args:
             vm_id: Numeric ID of the VM
+            include_raw: Include full API response for debugging (default: false)
 
         Returns:
             Dictionary containing VM details
@@ -141,7 +166,7 @@ class LegacyVMTools(BaseTool):
                 "attributes": device.get("attributes", {}),
             })
 
-        return {
+        result = {
             "success": True,
             "vm": {
                 "id": vm.get("id"),
@@ -158,9 +183,13 @@ class LegacyVMTools(BaseTool):
                 "cpu_model": vm.get("cpu_model"),
                 "status": status,
                 "devices": devices,
-            },
-            "raw": vm  # Include full response for debugging
+            }
         }
+
+        if include_raw:
+            result["raw"] = vm
+
+        return result
 
     @tool_handler
     async def start_legacy_vm(self, vm_id: int) -> Dict[str, Any]:

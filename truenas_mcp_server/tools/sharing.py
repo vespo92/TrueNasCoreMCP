@@ -13,7 +13,11 @@ class SharingTools(BaseTool):
         """Get tool definitions for sharing management"""
         return [
             # SMB Tools
-            ("list_smb_shares", self.list_smb_shares, "List all SMB shares", {}),
+            ("list_smb_shares", self.list_smb_shares, "List all SMB shares",
+             {"limit": {"type": "integer", "required": False,
+                       "description": "Max items to return (default: 100, max: 500)"},
+              "offset": {"type": "integer", "required": False,
+                        "description": "Items to skip for pagination"}}),
             ("create_smb_share", self.create_smb_share, "Create a new SMB share",
              {"path": {"type": "string", "required": True},
               "name": {"type": "string", "required": True},
@@ -21,9 +25,13 @@ class SharingTools(BaseTool):
               "read_only": {"type": "boolean", "required": False}}),
             ("delete_smb_share", self.delete_smb_share, "Delete an SMB share",
              {"share_name": {"type": "string", "required": True}}),
-            
+
             # NFS Tools
-            ("list_nfs_exports", self.list_nfs_exports, "List all NFS exports", {}),
+            ("list_nfs_exports", self.list_nfs_exports, "List all NFS exports",
+             {"limit": {"type": "integer", "required": False,
+                       "description": "Max items to return (default: 100, max: 500)"},
+              "offset": {"type": "integer", "required": False,
+                        "description": "Items to skip for pagination"}}),
             ("create_nfs_export", self.create_nfs_export, "Create an NFS export",
              {"path": {"type": "string", "required": True},
               "allowed_networks": {"type": "array", "required": False},
@@ -32,9 +40,13 @@ class SharingTools(BaseTool):
               "maproot_group": {"type": "string", "required": False}}),
             ("delete_nfs_export", self.delete_nfs_export, "Delete an NFS export",
              {"export_id": {"type": "integer", "required": True}}),
-            
+
             # iSCSI Tools
-            ("list_iscsi_targets", self.list_iscsi_targets, "List all iSCSI targets", {}),
+            ("list_iscsi_targets", self.list_iscsi_targets, "List all iSCSI targets",
+             {"limit": {"type": "integer", "required": False,
+                       "description": "Max items to return (default: 100, max: 500)"},
+              "offset": {"type": "integer", "required": False,
+                        "description": "Items to skip for pagination"}}),
             ("create_iscsi_target", self.create_iscsi_target, "Create an iSCSI target",
              {"name": {"type": "string", "required": True},
               "alias": {"type": "string", "required": False}}),
@@ -43,17 +55,25 @@ class SharingTools(BaseTool):
     # SMB Share Management
     
     @tool_handler
-    async def list_smb_shares(self) -> Dict[str, Any]:
+    async def list_smb_shares(
+        self,
+        limit: int = BaseTool.DEFAULT_LIMIT,
+        offset: int = 0
+    ) -> Dict[str, Any]:
         """
         List all SMB shares
-        
+
+        Args:
+            limit: Maximum number of items to return (default: 100, max: 500)
+            offset: Number of items to skip for pagination
+
         Returns:
             Dictionary containing list of SMB shares
         """
         await self.ensure_initialized()
-        
+
         shares = await self.client.get("/sharing/smb")
-        
+
         share_list = []
         for share in shares:
             share_info = {
@@ -73,17 +93,28 @@ class SharingTools(BaseTool):
                 "audit": share.get("audit", {})
             }
             share_list.append(share_info)
-        
+
+        # Calculate counts before pagination
+        total_shares = len(share_list)
+        enabled_shares = sum(1 for s in share_list if s["enabled"])
+        read_only_shares = sum(1 for s in share_list if s["read_only"])
+        guest_shares = sum(1 for s in share_list if s["guest_ok"])
+        timemachine_shares = sum(1 for s in share_list if s["timemachine"])
+
+        # Apply pagination
+        paginated_shares, pagination = self.apply_pagination(share_list, limit, offset)
+
         return {
             "success": True,
-            "shares": share_list,
+            "shares": paginated_shares,
             "metadata": {
-                "total_shares": len(share_list),
-                "enabled_shares": sum(1 for s in share_list if s["enabled"]),
-                "read_only_shares": sum(1 for s in share_list if s["read_only"]),
-                "guest_shares": sum(1 for s in share_list if s["guest_ok"]),
-                "timemachine_shares": sum(1 for s in share_list if s["timemachine"])
-            }
+                "total_shares": total_shares,
+                "enabled_shares": enabled_shares,
+                "read_only_shares": read_only_shares,
+                "guest_shares": guest_shares,
+                "timemachine_shares": timemachine_shares
+            },
+            "pagination": pagination
         }
     
     @tool_handler
@@ -194,17 +225,25 @@ class SharingTools(BaseTool):
     # NFS Export Management
     
     @tool_handler
-    async def list_nfs_exports(self) -> Dict[str, Any]:
+    async def list_nfs_exports(
+        self,
+        limit: int = BaseTool.DEFAULT_LIMIT,
+        offset: int = 0
+    ) -> Dict[str, Any]:
         """
         List all NFS exports
-        
+
+        Args:
+            limit: Maximum number of items to return (default: 100, max: 500)
+            offset: Number of items to skip for pagination
+
         Returns:
             Dictionary containing list of NFS exports
         """
         await self.ensure_initialized()
-        
+
         exports = await self.client.get("/sharing/nfs")
-        
+
         export_list = []
         for export in exports:
             export_info = {
@@ -223,16 +262,26 @@ class SharingTools(BaseTool):
                 "security": export.get("security", [])
             }
             export_list.append(export_info)
-        
+
+        # Calculate counts before pagination
+        total_exports = len(export_list)
+        enabled_exports = sum(1 for e in export_list if e["enabled"])
+        read_only_exports = sum(1 for e in export_list if e["read_only"])
+        alldirs_exports = sum(1 for e in export_list if e["alldirs"])
+
+        # Apply pagination
+        paginated_exports, pagination = self.apply_pagination(export_list, limit, offset)
+
         return {
             "success": True,
-            "exports": export_list,
+            "exports": paginated_exports,
             "metadata": {
-                "total_exports": len(export_list),
-                "enabled_exports": sum(1 for e in export_list if e["enabled"]),
-                "read_only_exports": sum(1 for e in export_list if e["read_only"]),
-                "alldirs_exports": sum(1 for e in export_list if e["alldirs"])
-            }
+                "total_exports": total_exports,
+                "enabled_exports": enabled_exports,
+                "read_only_exports": read_only_exports,
+                "alldirs_exports": alldirs_exports
+            },
+            "pagination": pagination
         }
     
     @tool_handler
@@ -348,15 +397,23 @@ class SharingTools(BaseTool):
     # iSCSI Management
     
     @tool_handler
-    async def list_iscsi_targets(self) -> Dict[str, Any]:
+    async def list_iscsi_targets(
+        self,
+        limit: int = BaseTool.DEFAULT_LIMIT,
+        offset: int = 0
+    ) -> Dict[str, Any]:
         """
         List all iSCSI targets
-        
+
+        Args:
+            limit: Maximum number of items to return (default: 100, max: 500)
+            offset: Number of items to skip for pagination
+
         Returns:
             Dictionary containing list of iSCSI targets
         """
         await self.ensure_initialized()
-        
+
         targets = await self.client.get("/iscsi/target")
         extents = await self.client.get("/iscsi/extent")
         target_extents = await self.client.get("/iscsi/targetextent")
@@ -401,15 +458,24 @@ class SharingTools(BaseTool):
                 "extents": target_extents_info
             }
             target_list.append(target_info)
-        
+
+        # Calculate counts before pagination
+        total_targets = len(target_list)
+        total_extents = len(extents)
+        targets_with_extents = sum(1 for t in target_list if t["extents"])
+
+        # Apply pagination
+        paginated_targets, pagination = self.apply_pagination(target_list, limit, offset)
+
         return {
             "success": True,
-            "targets": target_list,
+            "targets": paginated_targets,
             "metadata": {
-                "total_targets": len(target_list),
-                "total_extents": len(extents),
-                "targets_with_extents": sum(1 for t in target_list if t["extents"])
-            }
+                "total_targets": total_targets,
+                "total_extents": total_extents,
+                "targets_with_extents": targets_with_extents
+            },
+            "pagination": pagination
         }
     
     @tool_handler
