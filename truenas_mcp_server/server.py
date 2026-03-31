@@ -8,7 +8,7 @@ to a SCALE system.
 
 import sys
 import logging
-import asyncio
+from contextlib import asynccontextmanager
 from typing import Optional, List, Type
 from mcp.server.fastmcp import FastMCP
 
@@ -67,11 +67,23 @@ class TrueNASMCPServer:
         """
         self.name = name
         self.settings = get_settings()
-        self.mcp = FastMCP(name)
         self.tools: List[BaseTool] = []
         self.variant: TrueNASVariant = TrueNASVariant.UNKNOWN
         self._setup_logging()
-        # Note: Tools are registered during initialize() after variant detection
+
+        # Use FastMCP's lifespan to initialize the client on the correct
+        # event loop. Previously, asyncio.run(self.initialize()) created
+        # a separate event loop that was destroyed before FastMCP started,
+        # orphaning the httpx client's connections (see issue #6).
+        server = self
+
+        @asynccontextmanager
+        async def truenas_lifespan(app: FastMCP):
+            await server.initialize()
+            yield
+            await server.cleanup()
+
+        self.mcp = FastMCP(name, lifespan=truenas_lifespan)
     
     def _setup_logging(self):
         """Configure logging based on settings"""
@@ -174,24 +186,23 @@ class TrueNASMCPServer:
             logger.error(f"Error during cleanup: {e}")
     
     def run(self):
-        """Run the MCP server"""
+        """Run the MCP server
+
+        Initialization and cleanup are handled by the FastMCP lifespan
+        context manager, which runs inside mcp.run()'s event loop. This
+        ensures the httpx client is created and used on the same event
+        loop — avoiding the "Event loop is closed" error that occurs
+        when asyncio.run() is called separately.
+        """
         logger.info(f"Starting {self.name}...")
-        
+
         try:
-            # Run initialization
-            asyncio.run(self.initialize())
-            
-            # Run the MCP server
             self.mcp.run()
-            
         except KeyboardInterrupt:
             logger.info(f"\n{self.name} shutting down...")
         except Exception as e:
             logger.error(f"Server error: {e}")
             raise
-        finally:
-            # Cleanup
-            asyncio.run(self.cleanup())
 
 
 def create_server(name: Optional[str] = None) -> TrueNASMCPServer:
