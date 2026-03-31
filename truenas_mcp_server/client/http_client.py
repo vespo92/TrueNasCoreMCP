@@ -45,7 +45,7 @@ def retry_on_failure(max_retries: int = 3, backoff_factor: float = 2.0):
             for attempt in range(max_retries):
                 try:
                     return await func(*args, **kwargs)
-                except (TimeoutException, ConnectError) as e:
+                except (TimeoutException, ConnectError, RuntimeError) as e:
                     last_exception = e
                     if attempt < max_retries - 1:
                         wait_time = backoff_factor ** attempt
@@ -143,7 +143,19 @@ class TrueNASClient:
             logger.info("Disconnected from TrueNAS")
     
     async def ensure_connected(self):
-        """Ensure the client is connected"""
+        """Ensure the client is connected and usable on the current event loop
+
+        Handles the case where the client was created on a different (now
+        closed) event loop by detecting the stale state and reconnecting.
+        """
+        if self._client is not None:
+            # Verify the client's underlying transport is still usable.
+            # If it was created on a different (now-closed) event loop,
+            # the connection pool will be dead.
+            if self._client.is_closed:
+                logger.warning("HTTP client was closed — reconnecting")
+                self._client = None
+
         if self._client is None:
             await self.connect()
     
