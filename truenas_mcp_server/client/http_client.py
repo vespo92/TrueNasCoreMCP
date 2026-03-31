@@ -45,7 +45,22 @@ def retry_on_failure(max_retries: int = 3, backoff_factor: float = 2.0):
             for attempt in range(max_retries):
                 try:
                     return await func(*args, **kwargs)
-                except (TimeoutException, ConnectError, RuntimeError) as e:
+                except (TimeoutException, ConnectError) as e:
+                    last_exception = e
+                    if attempt < max_retries - 1:
+                        wait_time = backoff_factor ** attempt
+                        logger.warning(
+                            f"Request failed (attempt {attempt + 1}/{max_retries}), "
+                            f"retrying in {wait_time}s: {str(e)}"
+                        )
+                        await asyncio.sleep(wait_time)
+                    else:
+                        logger.error(f"Request failed after {max_retries} attempts: {str(e)}")
+                except RuntimeError as e:
+                    # Only retry on event-loop-related errors (stale client);
+                    # re-raise other RuntimeErrors immediately.
+                    if "event loop" not in str(e).lower() and "closed" not in str(e).lower():
+                        raise
                     last_exception = e
                     if attempt < max_retries - 1:
                         wait_time = backoff_factor ** attempt

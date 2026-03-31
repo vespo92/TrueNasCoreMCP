@@ -72,19 +72,18 @@ class TrueNASMCPServer:
         self._setup_logging()
 
         # Use FastMCP's lifespan to initialize the client on the correct
-        # event loop. Previously, asyncio.run(self.initialize()) created
-        # a separate event loop that was destroyed before FastMCP started,
-        # orphaning the httpx client's connections (see issue #6).
-        server = self
-
-        @asynccontextmanager
-        async def truenas_lifespan(app: FastMCP):
-            await server.initialize()
-            yield
-            await server.cleanup()
-
-        self.mcp = FastMCP(name, lifespan=truenas_lifespan)
+        # event loop (see issue #6).
+        self.mcp = FastMCP(name, lifespan=self._lifespan)
     
+    @asynccontextmanager
+    async def _lifespan(self, app: FastMCP):
+        """Run initialization and cleanup inside FastMCP's event loop."""
+        await self.initialize()
+        try:
+            yield
+        finally:
+            await self.cleanup()
+
     def _setup_logging(self):
         """Configure logging based on settings"""
         log_level = getattr(logging, self.settings.log_level)
