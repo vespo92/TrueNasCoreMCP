@@ -130,15 +130,20 @@ class TrueNASClient:
     async def connect(self):
         """Initialize the HTTP client"""
         if self._client is None:
+            # verify must be passed to AsyncHTTPTransport directly; when a
+            # custom transport is supplied to AsyncClient, the client-level
+            # verify= parameter is ignored by httpx and SSL verification
+            # defaults to enabled regardless of the setting.
             transport = httpx.AsyncHTTPTransport(
                 retries=0,  # We handle retries ourselves
+                verify=self.settings.truenas_verify_ssl,
                 limits=httpx.Limits(
                     max_connections=self.settings.http_pool_connections,
                     max_keepalive_connections=self.settings.http_pool_maxsize,
                     keepalive_expiry=30.0
                 )
             )
-            
+
             self._client = httpx.AsyncClient(
                 base_url=self.settings.api_base_url,
                 headers=self.settings.headers,
