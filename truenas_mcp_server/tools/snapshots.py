@@ -256,11 +256,12 @@ class SnapshotTools(BaseTool):
             }
         
         rollback_data = {
-            "force": force
+            "id": snapshot,
+            "options": {"force": force}
         }
-        
-        # Perform rollback
-        result = await self.client.post(f"/pool/snapshot/id/{quote(snapshot, safe='')}/rollback", rollback_data)
+
+        # Perform rollback (25.10: POST /pool/snapshot/rollback with id in body)
+        result = await self.client.post("/pool/snapshot/rollback", rollback_data)
         
         dataset, snap_name = snapshot.split("@", 1)
         
