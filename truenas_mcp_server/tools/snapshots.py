@@ -4,6 +4,7 @@ Snapshot management tools for TrueNAS
 
 from typing import Dict, Any, Optional, List
 from datetime import datetime
+from urllib.parse import quote
 from .base import BaseTool, tool_handler
 
 
@@ -69,7 +70,7 @@ class SnapshotTools(BaseTool):
         if dataset:
             params["dataset"] = dataset
 
-        snapshots = await self.client.get("/zfs/snapshot", params)
+        snapshots = await self.client.get("/pool/snapshot", params)
 
         snapshot_list = []
         for snap in snapshots:
@@ -85,7 +86,7 @@ class SnapshotTools(BaseTool):
                 "name": full_name,
                 "dataset": ds_name,
                 "snapshot": snap_name,
-                "created": snap.get("properties", {}).get("creation", {}).get("parsed") if snap.get("properties") else None,
+                "created": int(snap.get("properties", {}).get("creation", {}).get("rawvalue")) if snap.get("properties", {}).get("creation", {}).get("rawvalue") else None,
                 "referenced": snap.get("properties", {}).get("referenced", {}).get("value") if snap.get("properties") else None,
                 "used": snap.get("properties", {}).get("used", {}).get("value") if snap.get("properties") else None,
                 "holds": snap.get("holds", [])
@@ -97,8 +98,12 @@ class SnapshotTools(BaseTool):
             
             snapshot_list.append(snapshot_info)
         
+        # 25.10 /pool/snapshot ignores the ?dataset= param; filter client-side
+        if dataset:
+            snapshot_list = [s for s in snapshot_list if s["dataset"] == dataset]
+
         # Sort by creation time (newest first)
-        snapshot_list.sort(key=lambda x: x.get("created", 0), reverse=True)
+        snapshot_list.sort(key=lambda x: x.get("created") or 0, reverse=True)
         
         # Group by dataset (before pagination for accurate counts)
         by_dataset = {}
@@ -158,7 +163,7 @@ class SnapshotTools(BaseTool):
         if properties:
             snapshot_data["properties"] = properties
         
-        created = await self.client.post("/zfs/snapshot", snapshot_data)
+        created = await self.client.post("/pool/snapshot", snapshot_data)
         
         snapshot_full_name = f"{dataset}@{name}"
         
@@ -207,7 +212,7 @@ class SnapshotTools(BaseTool):
         }
         
         # Delete the snapshot
-        await self.client.delete(f"/zfs/snapshot/id/{snapshot}")
+        await self.client.delete(f"/pool/snapshot/id/{quote(snapshot, safe='')}")
         
         dataset, snap_name = snapshot.split("@", 1)
         
@@ -251,11 +256,12 @@ class SnapshotTools(BaseTool):
             }
         
         rollback_data = {
-            "force": force
+            "id": snapshot,
+            "options": {"force": force}
         }
-        
-        # Perform rollback
-        result = await self.client.post(f"/zfs/snapshot/id/{snapshot}/rollback", rollback_data)
+
+        # Perform rollback (25.10: POST /pool/snapshot/rollback with id in body)
+        result = await self.client.post("/pool/snapshot/rollback", rollback_data)
         
         dataset, snap_name = snapshot.split("@", 1)
         
@@ -297,7 +303,7 @@ class SnapshotTools(BaseTool):
         }
         
         # Create the clone
-        result = await self.client.post("/zfs/snapshot/clone", clone_data)
+        result = await self.client.post("/pool/snapshot/clone", clone_data)
         
         dataset, snap_name = snapshot.split("@", 1)
         

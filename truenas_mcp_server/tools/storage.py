@@ -3,6 +3,7 @@ Storage management tools for TrueNAS
 """
 
 from typing import Dict, Any, Optional, List
+from urllib.parse import quote
 from .base import BaseTool, tool_handler
 
 
@@ -372,10 +373,11 @@ class StorageTools(BaseTool):
         dataset_data = {
             "name": f"{pool}/{name}",
             "type": "FILESYSTEM",
-            "compression": compression,
-            "sync": sync,
-            "atime": atime,
-            "recordsize": recordsize
+            "compression": compression.upper(),
+            "sync": sync.upper(),
+            "atime": "ON" if atime else "OFF",
+            "recordsize": recordsize,
+            "create_ancestors": True
         }
         
         # Add quota if specified
@@ -442,7 +444,7 @@ class StorageTools(BaseTool):
         
         # Delete the dataset
         dataset_id = target_dataset["id"]
-        await self.client.delete(f"/pool/dataset/id/{dataset_id}")
+        await self.client.delete(f"/pool/dataset/id/{quote(dataset_id, safe='')}")
         
         return {
             "success": True,
@@ -492,7 +494,7 @@ class StorageTools(BaseTool):
         
         # Update the dataset
         dataset_id = target_dataset["id"]
-        updated = await self.client.put(f"/pool/dataset/id/{dataset_id}", processed_props)
+        updated = await self.client.put(f"/pool/dataset/id/{quote(dataset_id, safe='')}", processed_props)
         
         return {
             "success": True,
