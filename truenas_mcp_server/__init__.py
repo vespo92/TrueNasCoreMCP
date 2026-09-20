@@ -5,7 +5,7 @@ This package provides a comprehensive MCP server implementation for managing
 TrueNAS Core systems through natural language interfaces.
 """
 
-__version__ = "4.1.1"
+__version__ = "4.1.2"
 __author__ = "Vinnie Espo"
 __email__ = "vespo21@gmail.com"
 

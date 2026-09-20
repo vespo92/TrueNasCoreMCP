@@ -35,7 +35,9 @@ class StorageTools(BaseTool):
               "name": {"type": "string", "required": True},
               "compression": {"type": "string", "required": False},
               "quota": {"type": "string", "required": False},
-              "recordsize": {"type": "string", "required": False}}),
+              "recordsize": {"type": "string", "required": False},
+              "sync": {"type": "string", "required": False},
+              "atime": {"type": "boolean", "required": False}}),
             ("delete_dataset", self.delete_dataset, "Delete a dataset",
              {"dataset": {"type": "string", "required": True},
               "recursive": {"type": "boolean", "required": False}}),
@@ -372,9 +374,9 @@ class StorageTools(BaseTool):
         dataset_data = {
             "name": f"{pool}/{name}",
             "type": "FILESYSTEM",
-            "compression": compression,
-            "sync": sync,
-            "atime": atime,
+            "compression": compression.upper(),
+            "sync": sync.upper(),
+            "atime": "ON" if atime else "OFF",
             "recordsize": recordsize
         }
         
